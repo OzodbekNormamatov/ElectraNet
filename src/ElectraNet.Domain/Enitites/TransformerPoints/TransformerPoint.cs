@@ -2,7 +2,7 @@
 
 namespace ElectraNet.Domain.Enitites.TransformerPoints;
 
-public class TransformerPoints : Auditable
+public class TransformerPoint : Auditable
 {
     public string Title { get; set; }
     public string Address { get; set; }
