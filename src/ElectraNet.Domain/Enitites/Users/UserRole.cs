@@ -2,7 +2,7 @@
 
 namespace ElectraNet.Domain.Enitites.Users;
 
-public class UserRole:Auditable
+public class UserRole : Auditable
 {
-    public string Name {  get; set; }
+    public string Name { get; set; }
 }
