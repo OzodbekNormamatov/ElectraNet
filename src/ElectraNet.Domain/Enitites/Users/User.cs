@@ -1,5 +1,4 @@
 ﻿using ElectraNet.Domain.Commons;
-
 namespace ElectraNet.Domain.Enitites.Users;
 
 public class User : Auditable
