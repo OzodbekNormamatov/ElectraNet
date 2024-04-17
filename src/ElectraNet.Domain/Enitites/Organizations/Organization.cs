@@ -1,5 +1,4 @@
 ﻿using ElectraNet.Domain.Commons;
-
 namespace ElectraNet.Domain.Enitites.Organizations;
 
 public class Organization : Auditable
