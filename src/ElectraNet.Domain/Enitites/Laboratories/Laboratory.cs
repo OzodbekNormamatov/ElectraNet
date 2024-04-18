@@ -1,5 +1,7 @@
 ﻿using ElectraNet.Domain.Enums;
 using ElectraNet.Domain.Commons;
+using ElectraNet.Domain.Enitites.Cables;
+using ElectraNet.Domain.Enitites.TransformerPoints;
 
 namespace ElectraNet.Domain.Enitites.Laboratories;
 
