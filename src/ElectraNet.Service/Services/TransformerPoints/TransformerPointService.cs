@@ -9,7 +9,9 @@ public class TransformerPointService(IUnitOfWork unitOfWork) : ITransformerPoint
 {
     public async ValueTask<TransformerPoint> CreateAsync(TransformerPoint transformerPoint)
     {
-        transformerPoint.CreatedByUserId = HttpContextHelper.UserId;
+        var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t=> t.Title == transformerPoint.Title);
+        if (existTransformerPoint is not null ) 
+            throw new AlreadyExistException("TransformerPoint is already exist");
         var createdTransformerPoint = await unitOfWork.TransformerPoints.InsertAsync(transformerPoint);
         await unitOfWork.SaveAsync();
         return createdTransformerPoint;

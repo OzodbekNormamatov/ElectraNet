@@ -8,7 +8,9 @@ public class TransformerService(IUnitOfWork unitOfWork) : ITransformerService
 {
     public async ValueTask<Transformer> CreateAsync(Transformer transformer)
     {
-        transformer.CreatedByUserId = HttpContextHelper.UserId;
+        var existTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Description == transformer.Description);
+        if (existTransformer is not null)
+            throw new AlreadyExistException("Transformer is already exist");
         var createdTransformer = await unitOfWork.Transformers.InsertAsync(transformer);
         await unitOfWork.SaveAsync();
         return createdTransformer;

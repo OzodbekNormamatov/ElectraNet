@@ -8,7 +8,9 @@ public class PositionService(IUnitOfWork unitOfWork) : IPositionService
 {
     public async ValueTask<Position> CreateAsync(Position position)
     {
-        position.CreatedByUserId = HttpContextHelper.UserId;
+        var existPosition = await unitOfWork.Positions.SelectAsync(p => p.Name == position.Name);
+        if(existPosition is not null) 
+             throw new AlreadyExistException("Position is already exist");
         var createdPosition = await unitOfWork.Positions.InsertAsync(position);
         await unitOfWork.SaveAsync();
         return createdPosition;
