@@ -22,4 +22,9 @@
     <ProjectReference Include="..\ElectraNet.Domain\ElectraNet.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ElectraNet.Data\ElectraNet.Data.csproj" />
+    <ProjectReference Include="..\ElectraNet.Domain\ElectraNet.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
