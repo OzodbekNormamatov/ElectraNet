@@ -1,12 +1,14 @@
 ﻿using ElectraNet.Domain.Enitites.Transformers;
+using ElectraNet.Service.Configurations;
+using ElectraNet.Service.DTOs.Transformers;
 
 namespace ElectraNet.Service.Services.Transformers;
 
 public interface ITransformerService
 {
-    ValueTask<Transformer> CreateAsync(Transformer transformer);
-    ValueTask<Transformer> UpdateAsync(long id, Transformer transformer);
+    ValueTask<TransformerViewModel> CreateAsync(TransformerCreateModel createModel);
+    ValueTask<TransformerViewModel> UpdateAsync(long id, TransformerUpdateModel updateModel);
     ValueTask<bool> DeleteAsync(long id);
-    ValueTask<Transformer> GetByIdAsync(long id);
-    ValueTask<IEnumerable<Transformer>> GetAllAsync(PaganationParams @params, Filter filter, string search = null);
+    ValueTask<TransformerViewModel> GetByIdAsync(long id);
+    ValueTask<IEnumerable<TransformerViewModel>> GetAllAsync(PaginationParams @params, Filter filter, string search = null);
 }
