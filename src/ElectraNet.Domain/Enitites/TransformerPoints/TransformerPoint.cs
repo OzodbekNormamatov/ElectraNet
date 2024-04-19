@@ -1,4 +1,5 @@
 ﻿using ElectraNet.Domain.Commons;
+using ElectraNet.Domain.Enitites.Organizations;
 
 namespace ElectraNet.Domain.Enitites.TransformerPoints;
 

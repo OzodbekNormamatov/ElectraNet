@@ -3,6 +3,7 @@
 using ElectraNet.Domain.Enitites.Cables;
 using ElectraNet.Domain.Enitites.Commons;
 using ElectraNet.Domain.Enitites.Laboratories;
+using ElectraNet.Domain.Enitites.Organizations;
 using ElectraNet.Domain.Enitites.Positions;
 using ElectraNet.Domain.Enitites.ServiceRecords;
 using ElectraNet.Domain.Enitites.TransformerPoints;

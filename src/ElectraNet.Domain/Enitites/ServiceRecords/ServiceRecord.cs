@@ -1,4 +1,6 @@
 ﻿using ElectraNet.Domain.Commons;
+using ElectraNet.Domain.Enitites.Cables;
+using ElectraNet.Domain.Enitites.TransformerPoints;
 using ElectraNet.Domain.Enums;
 
 namespace ElectraNet.Domain.Enitites.ServiceRecords;

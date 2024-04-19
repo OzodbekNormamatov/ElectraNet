@@ -2,12 +2,12 @@
 using ElectraNet.Domain.Enitites.Cables;
 using ElectraNet.Domain.Enitites.Commons;
 using ElectraNet.Domain.Enitites.Laboratories;
+using ElectraNet.Domain.Enitites.Organizations;
 using ElectraNet.Domain.Enitites.Positions;
 using ElectraNet.Domain.Enitites.ServiceRecords;
 using ElectraNet.Domain.Enitites.TransformerPoints;
 using ElectraNet.Domain.Enitites.Transformers;
 using ElectraNet.Domain.Enitites.Users;
-using System.Security;
 
 namespace ElectraNet.DataAccess.UnitOfWorks;
 
@@ -23,7 +23,7 @@ public class UnitOfWork : IUnitOfWork
     public IRepository<Laboratory> Laboratories { get; }
     public IRepository<TransformerPoint> TransformerPoints { get; }
     public IRepository<Position> Positions { get; }
-    public IRepository<ServiceRecord> ServiceRecord { get; }
+    public IRepository<ServiceRecord> ServiceRecords { get; }
     public IRepository<Permission> Permissions { get; }
     public IRepository<UserPermission> UserPermissions { get; }
     public IRepository<Employee> Employees { get; }
@@ -35,11 +35,16 @@ public class UnitOfWork : IUnitOfWork
         _context = context;
         Users = new Repository<User>(_context);
         Assets = new Repository<Asset>(_context);
-        Students = new Repository<Student>(_context);
+        Cables = new Repository<Cable>(_context);
+        Positions = new Repository<Position>(_context);
         UserRoles = new Repository<UserRole>(_context);
-        Instructors = new Repository<Instructor>(_context);
         Permissions = new Repository<Permission>(_context);
+        Laboratories = new Repository<Laboratory>(_context);
+        Transformers = new Repository<Transformer>(_context);
+        Organizations = new Repository<Organization>(_context);
+        ServiceRecords = new Repository<ServiceRecord>(_context);
         UserPermissions = new Repository<UserPermission>(_context);
+        TransformerPoints =  new Repository<TransformerPoint>(_context);    
     }
 
     public void Dispose()
