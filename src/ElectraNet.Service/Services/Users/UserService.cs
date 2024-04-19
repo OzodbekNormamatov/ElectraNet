@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ElectraNet.Domain.Enitites.Users;
+using ElectraNet.Service.Configurations;
 
-namespace ElectraNet.Service.Users;
+namespace ElectraNet.Service.Services.Users;
 
 public class UserService : IUserService
 {

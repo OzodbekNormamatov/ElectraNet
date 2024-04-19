@@ -1,15 +1,16 @@
-﻿using ElectraNet.DataAccess.UnitOfWorks;
-using ElectraNet.Domain.Enitites.Users;
-using ElectraNet.Service.Configurations;
+﻿using AutoMapper;
 using ElectraNet.Service.Exceptions;
 using ElectraNet.Service.Extensions;
-using ElectraNet.Service.Helpers;
+using Microsoft.EntityFrameworkCore;
+using ElectraNet.DataAccess.UnitOfWorks;
+using ElectraNet.Service.Configurations;
+using ElectraNet.Service.DTOs.Permissions;
 
 namespace ElectraNet.Service.Services.Permissions;
 
-public class PermissionService(IUnitOfWork unitOfWork) : IPermissionService
+public class PermissionService(IMapper mapper, IUnitOfWork unitOfWork) : IPermissionService
 {
-    public async ValueTask<Permission> CreateAsync(Permission permission)
+    public async ValueTask<PermissionViewModel> CreateAsync(PermissionCreateModel permission)
     {
         var existPermission = await unitOfWork.Permissions.SelectAsync(p =>
             p.Method.ToLower() == permission.Method.ToLower() &&
@@ -18,14 +19,14 @@ public class PermissionService(IUnitOfWork unitOfWork) : IPermissionService
         if (existPermission is not null)
             throw new AlreadyExistException($"This permission is already exists | Method = {permission.Method} Controller = {permission.Controller}");
 
-        permission.CreatedByUserId = HttpContextHelper.UserId;
-        var createdPermission = await unitOfWork.Permissions.InsertAsync(permission);
+        existPermission.Create();
+        var createdPermission = await unitOfWork.Permissions.InsertAsync(existPermission);
         await unitOfWork.SaveAsync();
 
-        return createdPermission;
+        return mapper.Map<PermissionViewModel>(createdPermission);
     }
 
-    public async ValueTask<Permission> UpdateAsync(long id, Permission permission)
+    public async ValueTask<PermissionViewModel> UpdateAsync(long id, PermissionUpdateModel permission)
     {
         var existPermission = await unitOfWork.Permissions.SelectAsync(p => p.Id == id)
             ?? throw new NotFoundException($"Permission is not found with this ID = {id}");
@@ -39,11 +40,12 @@ public class PermissionService(IUnitOfWork unitOfWork) : IPermissionService
 
         existPermission.Method = permission.Method;
         existPermission.Controller = permission.Controller;
-        existPermission.UpdatedByUserId = HttpContextHelper.UserId;
-        await unitOfWork.Permissions.UpdateAsync(permission);
+
+        existPermission.Create();
+        await unitOfWork.Permissions.UpdateAsync(existPermission);
         await unitOfWork.SaveAsync();
 
-        return existPermission;
+        return mapper.Map<PermissionViewModel>(existPermission);
     }
 
     public async ValueTask<bool> DeleteAsync(long id)
@@ -57,15 +59,15 @@ public class PermissionService(IUnitOfWork unitOfWork) : IPermissionService
         return true;
     }
 
-    public async ValueTask<Permission> GetByIdAsync(long id)
+    public async ValueTask<PermissionViewModel> GetByIdAsync(long id)
     {
         var existPermission = await unitOfWork.Permissions.SelectAsync(p => p.Id == id)
             ?? throw new NotFoundException($"Permission is not found with this ID = {id}");
 
-        return existPermission;
+        return mapper.Map<PermissionViewModel>(existPermission);
     }
 
-    public async ValueTask<IEnumerable<Permission>> GetAllAsync(PaginationParams @params, Filter filter, string search = null)
+    public async ValueTask<IEnumerable<PermissionViewModel>> GetAllAsync(PaginationParams @params, Filter filter, string search = null)
     {
         var permissions = unitOfWork.Permissions.SelectAsQueryable().OrderBy(filter);
 
@@ -74,6 +76,6 @@ public class PermissionService(IUnitOfWork unitOfWork) : IPermissionService
              p.Method.Contains(search, StringComparison.OrdinalIgnoreCase) ||
              p.Controller.Contains(search, StringComparison.OrdinalIgnoreCase));
 
-        return await Task.FromResult(permissions.ToPaginate(@params));
+        return mapper.Map<IEnumerable<PermissionViewModel>>(await permissions.ToPaginateAsQueryable(@params).ToListAsync());
     }
 }
