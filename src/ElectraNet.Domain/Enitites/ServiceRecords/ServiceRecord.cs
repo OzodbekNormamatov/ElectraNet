@@ -1,5 +1,6 @@
 ﻿using ElectraNet.Domain.Commons;
 using ElectraNet.Domain.Enitites.Cables;
+using ElectraNet.Domain.Enitites.Employees;
 using ElectraNet.Domain.Enitites.TransformerPoints;
 using ElectraNet.Domain.Enums;
 

@@ -2,6 +2,7 @@
 using ElectraNet.Domain.Commons;
 using ElectraNet.Domain.Enitites.Cables;
 using ElectraNet.Domain.Enitites.TransformerPoints;
+using ElectraNet.Domain.Enitites.Employees;
 
 namespace ElectraNet.Domain.Enitites.Laboratories;
 
