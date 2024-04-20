@@ -1,5 +1,6 @@
 ﻿
 using ElectraNet.Domain.Enitites.Users;
+using ElectraNet.Service.Configurations;
 
 namespace ElectraNet.Service.Users;
 
