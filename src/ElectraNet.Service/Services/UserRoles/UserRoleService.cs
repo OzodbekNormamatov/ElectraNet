@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using ElectraNet.Service.Extensions;
 using ElectraNet.Service.Exceptions;
 using ElectraNet.Domain.Enitites.Users;
