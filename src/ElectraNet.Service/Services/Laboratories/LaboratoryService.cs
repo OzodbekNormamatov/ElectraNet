@@ -7,6 +7,7 @@ using ElectraNet.DataAccess.UnitOfWorks;
 using ElectraNet.Service.DTOs.Laboratories;
 using ElectraNet.Domain.Enitites.Laboratories;
 using ElectraNet.Service.Services.TransformerPoints;
+using ElectraNet.Service.Services.Employees;
 
 namespace ElectraNet.Service.Services.Laboratories;
 
@@ -25,7 +26,7 @@ public class LaboratoryService
         if (createModel.TransformerPointId is not null)
             await transformerPointService.GetByIdAsync(Convert.ToInt64(createModel.TransformerPointId));
 
-        await await employeeService.GetByIdAsync(createModel.MasterId);
+        await employeeService.GetByIdAsync(createModel.MasterId);
 
         var laboratory = mapper.Map<Laboratory>(createModel);
         laboratory.Create();
@@ -46,7 +47,7 @@ public class LaboratoryService
         if (updateModel.TransformerPointId is not null)
             await transformerPointService.GetByIdAsync(Convert.ToInt64(updateModel.TransformerPointId));
 
-        await await employeeService.GetByIdAsync(updateModel.MasterId);
+        await employeeService.GetByIdAsync(updateModel.MasterId);
 
         mapper.Map(existLaboratory, updateModel);
         existLaboratory.Update();

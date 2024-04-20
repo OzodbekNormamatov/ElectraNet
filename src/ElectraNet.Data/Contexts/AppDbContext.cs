@@ -2,6 +2,7 @@
 
 using ElectraNet.Domain.Enitites.Cables;
 using ElectraNet.Domain.Enitites.Commons;
+using ElectraNet.Domain.Enitites.Employees;
 using ElectraNet.Domain.Enitites.Laboratories;
 using ElectraNet.Domain.Enitites.Organizations;
 using ElectraNet.Domain.Enitites.Positions;

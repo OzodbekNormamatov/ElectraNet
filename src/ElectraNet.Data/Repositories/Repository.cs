@@ -16,35 +16,63 @@ public class Repository<T> : IRepository<T> where T : Auditable
 
     public async ValueTask<T> InsertAsync(T entity)
     {
-        throw new NotImplementedException();
+        return (await set.AddAsync(entity)).Entity;
     }
     public async ValueTask<T> UpdateAsync(T entity)
     {
-        throw new NotImplementedException();
+        set.Update(entity);
+        return await Task.FromResult(entity);
     }
 
     public async ValueTask<T> DeleteAsync(T entity)
     {
-        throw new NotImplementedException();
+        entity.IsDeleted = true;
+        set.Update(entity);
+        return await Task.FromResult(entity);
     }
 
     public async ValueTask<T> DropAsync(T entity)
     {
-        throw new NotImplementedException();
+        return await Task.FromResult(set.Remove(entity).Entity);
     }
 
     public async ValueTask<T> SelectAsync(Expression<Func<T, bool>> expression, string[] includes = null)
     {
-        throw new NotImplementedException();
+        var query = set.Where(expression);
+
+        if (includes is not null)
+            foreach (var include in includes)
+                query = query.Include(include);
+
+        return await query.FirstOrDefaultAsync();
     }
 
     public async ValueTask<IEnumerable<T>> SelectAsEnumerableAsync(Expression<Func<T, bool>> expression = null,string[] includes = null,bool isTracked = true)
     {
-        throw new NotImplementedException();
+        var query = expression is null ? set : set.Where(expression);
+
+        if (includes is not null)
+            foreach (var include in includes)
+                query = query.Include(include);
+
+        if (!isTracked)
+            query.AsNoTracking();
+
+        return await query.ToListAsync(); 
     }
 
     public IQueryable<T> SelectAsQueryable(Expression<Func<T, bool>> expression = null,string[] includes = null,bool isTracked = true)
     {
-        throw new NotImplementedException();
+        var query = expression is null ? set : set.Where(expression);
+
+        if (includes is not null)
+            foreach (var include in includes)
+                query = query.Include(include);
+
+        if (!isTracked)
+            query.AsNoTracking();
+
+
+        return query;
     }
 }
