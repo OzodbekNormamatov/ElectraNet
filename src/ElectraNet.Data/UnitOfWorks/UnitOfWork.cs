@@ -1,6 +1,7 @@
 ﻿using ElectraNet.DataAccess.Repositories;
 using ElectraNet.Domain.Enitites.Cables;
 using ElectraNet.Domain.Enitites.Commons;
+using ElectraNet.Domain.Enitites.Employees;
 using ElectraNet.Domain.Enitites.Laboratories;
 using ElectraNet.Domain.Enitites.Organizations;
 using ElectraNet.Domain.Enitites.Positions;
@@ -36,6 +37,7 @@ public class UnitOfWork : IUnitOfWork
         Users = new Repository<User>(_context);
         Assets = new Repository<Asset>(_context);
         Cables = new Repository<Cable>(_context);
+        Employees = new Repository<Employee>(_context);
         Positions = new Repository<Position>(_context);
         UserRoles = new Repository<UserRole>(_context);
         Permissions = new Repository<Permission>(_context);
