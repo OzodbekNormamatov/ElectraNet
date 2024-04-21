@@ -16,7 +16,6 @@ public class CableService(IMapper mapper, IUnitOfWork unitOfWork) : ICableServic
 
         if (existCable is not null)
             throw new AlreadyExistException("Cable is already exist");
-
         var cable = mapper.Map<Cable>(createModel);
         cable.Create();
         var createdCable = await unitOfWork.Cables.InsertAsync(cable);
