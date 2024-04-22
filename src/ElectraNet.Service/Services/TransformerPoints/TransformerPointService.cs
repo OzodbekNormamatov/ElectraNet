@@ -32,7 +32,7 @@ public class TransformerPointService(IMapper mapper, IUnitOfWork unitOfWork) : I
 
         var alreadyExistTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Title.ToLower() == updateModel.Title.ToLower());
         if (alreadyExistTransformerPoint is not null)
-            throw new AlreadyExistException("TransformerPoint is already exist");
+            throw new AlreadyExistException("TransformerPoint is already exist");   
 
         mapper.Map(existTransformerPoint, updateModel);
         existTransformerPoint.Update();
