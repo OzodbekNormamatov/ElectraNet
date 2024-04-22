@@ -1,5 +1,6 @@
 ﻿using ElectraNet.Domain.Commons;
 using ElectraNet.Domain.Enitites.Cables;
+using ElectraNet.Domain.Enitites.Users;
 using System.Linq.Expressions;
 
 namespace ElectraNet.DataAccess.Repositories;
@@ -14,4 +15,5 @@ public interface IRepository<T> where T : Auditable
     ValueTask<IEnumerable<T>> SelectAsEnumerableAsync(Expression<Func<T, bool>> expression = null,string[] includes = null, bool isTracked = true);
     IQueryable<T> SelectAsQueryable(Expression<Func<T, bool>> expression = null,string[] includes = null, bool isTracked = true);
     Task UpdateAsync(Cable existCable);
+    Task DropAsync(User existOrganization);
 }
