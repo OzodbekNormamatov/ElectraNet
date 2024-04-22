@@ -22,7 +22,6 @@ public class CableService(IMapper mapper, IUnitOfWork unitOfWork) : ICableServic
         await unitOfWork.SaveAsync();
 
         return mapper.Map<CableViewModel>(createModel);
-
     }
 
     public async ValueTask<CableViewModel> CableUpdateModel(long Id, CableUpdateModel updateModel)
