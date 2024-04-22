@@ -66,6 +66,7 @@ public class PositionService(IMapper mapper, IUnitOfWork unitOfWork) : IPosition
           .SelectAsQueryable(expression: e => !e.IsDeleted, isTracked: false)
           .OrderBy(filter);
 
+
         if (!string.IsNullOrEmpty(search))
             positions = positions.Where(position =>
                 position.Name.Contains(search, StringComparison.OrdinalIgnoreCase));
