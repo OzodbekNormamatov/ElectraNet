@@ -9,5 +9,5 @@ public interface IEmployeeService
     ValueTask<EmployeeViewModel> UpdateAsync(long id, EmployeeUpdateModel updateModel);
     ValueTask<bool> DeleteAsync(long id);
     ValueTask<EmployeeViewModel> GetByIdAsync(long id);
-    ValueTask<IEnumerable<EmployeeViewModel>> GetAllAsync(PaginationParams @params, Filter filter, string search = null);
+    ValueTask<IEnumerable<EmployeeViewModel>> GetAllAsync(PaginationParams @params, Filter filter);
 }

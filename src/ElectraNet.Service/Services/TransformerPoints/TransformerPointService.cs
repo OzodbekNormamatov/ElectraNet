@@ -5,10 +5,15 @@ using ElectraNet.Service.Configurations;
 using ElectraNet.Service.DTOs.TransformerPoints;
 using ElectraNet.Service.Exceptions;
 using ElectraNet.Service.Extensions;
+using ElectraNet.Service.Services.Organizations;
+using ElectraNet.Service.Services.Transformers;
 
 namespace ElectraNet.Service.Services.TransformerPoints;
 
-public class TransformerPointService(IMapper mapper, IUnitOfWork unitOfWork) : ITransformerPointService
+public class TransformerPointService(
+    IMapper mapper, 
+    IUnitOfWork unitOfWork,
+    IOrganizationService organizationService) : ITransformerPointService
 {
     public async ValueTask<TransformerPointViewModel> CreateAsync(TransformerPointCreateModel createModel)
     {
@@ -16,6 +21,9 @@ public class TransformerPointService(IMapper mapper, IUnitOfWork unitOfWork) : I
 
         if (existTransformerPoint is not null)
             throw new AlreadyExistException("TransformerPoint is already exist");
+
+        if (createModel.OrganizationId is not null)
+            await organizationService.GetByIdAsync(Convert.ToInt64(createModel.OrganizationId));
 
         var transformer = mapper.Map<TransformerPoint>(createModel);
         transformer.Create();
@@ -29,6 +37,9 @@ public class TransformerPointService(IMapper mapper, IUnitOfWork unitOfWork) : I
     {
         var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Id == id)
           ?? throw new NotFoundException($"TransformerPoint is not found with this ID = {id}");
+
+        if (updateModel.OrganizationId is not null)
+            await organizationService.GetByIdAsync(Convert.ToInt64(updateModel.OrganizationId));
 
         var alreadyExistTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Title.ToLower() == updateModel.Title.ToLower());
         if (alreadyExistTransformerPoint is not null)
@@ -61,7 +72,9 @@ public class TransformerPointService(IMapper mapper, IUnitOfWork unitOfWork) : I
 
     public async ValueTask<IEnumerable<TransformerPointViewModel>> GetAllAsync(PaginationParams @params, Filter filter, string search = null)
     {
-        var transformerPoints = unitOfWork.TransformerPoints.SelectAsQueryable().OrderBy(filter).ToPaginate(@params);
+        var transformerPoints = unitOfWork.TransformerPoints
+          .SelectAsQueryable(expression: e => !e.IsDeleted, includes: ["Organization"], isTracked: false)
+          .OrderBy(filter);
 
         if (!string.IsNullOrEmpty(search))
             transformerPoints = transformerPoints.Where(role =>
