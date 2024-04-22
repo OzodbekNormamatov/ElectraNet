@@ -62,7 +62,7 @@ public class PositionService(IMapper mapper, IUnitOfWork unitOfWork) : IPosition
 
     public async ValueTask<IEnumerable<PositionViewModel>> GetAllAsync(PaginationParams @params, Filter filter, string search = null)
     {
-        var positions = unitOfWork.Positions.SelectAsQueryable().OrderBy(filter).ToPaginate(@params);
+        var positions = unitOfWork.Positions.SelectAsQueryable().OrderBy(filter).ToPaginateAsQueryable(@params);
 
         if (!string.IsNullOrEmpty(search))
             positions = positions.Where(position =>

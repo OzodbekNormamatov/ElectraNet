@@ -62,7 +62,7 @@ public class TransformerService(IMapper mapper, IUnitOfWork unitOfWork) : ITrans
 
     public async ValueTask<IEnumerable<TransformerViewModel>> GetAllAsync(PaginationParams @params, Filter filter, string search = null)
     {
-        var transformers = unitOfWork.Transformers.SelectAsQueryable().OrderBy(filter).ToPaginate(@params);
+        var transformers = unitOfWork.Transformers.SelectAsQueryable().OrderBy(filter).ToPaginateAsQueryable(@params);
 
         if (!string.IsNullOrEmpty(search))
             transformers = transformers.Where(role =>
