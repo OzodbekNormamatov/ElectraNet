@@ -1,4 +1,3 @@
-using ElectraNet.Domain.Enitites.Commons;
 using ElectraNet.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 
@@ -8,7 +7,7 @@ public static class FileHelper
 {
     public static async ValueTask<(string Path, string Name)> CreateFileAsync(IFormFile file, FileType type)
     {
-        var directoryPath = Path.Combine(PathHelper.WebRootPath, nameof(type));
+        var directoryPath = Path.Combine(EnvironmentHelper.WebRootPath, nameof(type));
         if (!Directory.Exists(directoryPath))
             Directory.CreateDirectory(directoryPath);
 
