@@ -1,7 +1,5 @@
 ﻿using ElectraNet.Service.Configurations;
-using ElectraNet.Service.DTOs.Cables;
 using ElectraNet.Service.DTOs.Organizations;
-using ElectraNet.Service.Services.Cables;
 using ElectraNet.Service.Services.Organizations;
 using ElectraNet.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
