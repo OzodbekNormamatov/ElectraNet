@@ -14,9 +14,6 @@
   <ItemGroup>
     <Folder Include="Controllers\" />
     <Folder Include="wwwroot\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\ElectraNet.Service\ElectraNet.Service.csproj" />
   </ItemGroup>
 
