@@ -1,4 +1,4 @@
-﻿using ElectraNet.Domain.Enitites.Users;
+﻿using ElectraNet.Service.DTOs.UserRoles;
 
 namespace ElectraNet.Service.DTOs.Users;
 
@@ -11,5 +11,5 @@ public class UserViewModel
     public string Email { get; set; }
     public string Number { get; set; }
     public long RoledId { get; set; }
-    public UserRole UserRole { get; set; }
+    public UserRoleViewModel UserRole { get; set; }
 }
