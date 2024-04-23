@@ -83,7 +83,7 @@ public class TransformerPointService(
                 role.Title.Contains(search, StringComparison.OrdinalIgnoreCase) ||
                 role.Address.Contains(search, StringComparison.OrdinalIgnoreCase));
 
-        var paginateTransformerpoint = transformerPoints.ToPaginateAsQueryable(@params).ToListAsync();
+        var paginateTransformerPoint = transformerPoints.ToPaginateAsQueryable(@params).ToListAsync();
         return await Task.FromResult(mapper.Map<IEnumerable<TransformerPointViewModel>>(transformerPoints));
     }
 }
