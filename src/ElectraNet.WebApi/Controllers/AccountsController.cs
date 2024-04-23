@@ -2,62 +2,63 @@
 using ElectraNet.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ElectraNet.WebApi.Controllers;
-
-public class AccountsController(IUserService userService) : BaseController
+namespace ElectraNet.WebApi.Controllers
 {
-    [HttpGet("login")]
-    public async ValueTask<IActionResult> LoginAsync(string phone, string password)
+    public class AccountsController(IUserService userService) : BaseController
     {
-        return Ok(new Response
+        [HttpGet("login")]
+        public async ValueTask<IActionResult> LoginAsync(string phone, string password)
         {
-            StatusCode = 200,
-            Message = "Ok",
-            Data = await userService.LoginAsync(phone, password)
-        });
-    }
+            return Ok(new Response
+            {
+                StatusCode = 200,
+                Message = "Ok",
+                Data = await userService.LoginAsync(phone, password)
+            });
+        }
 
-    [HttpGet("send-code")]
-    public async ValueTask<IActionResult> SendCodeAsync(string phone)
-    {
-        return Ok(new Response
+        [HttpGet("send-code")]
+        public async ValueTask<IActionResult> SendCodeAsync(string phone)
         {
-            StatusCode = 200,
-            Message = "Ok",
-            Data = await userService.SendCodeAsync(phone)
-        });
-    }
+            return Ok(new Response
+            {
+                StatusCode = 200,
+                Message = "Ok",
+                Data = await userService.SendCodeAsync(phone)
+            });
+        }
 
-    [HttpGet("confirm-code")]
-    public async ValueTask<IActionResult> ConfirmAsync(string phone, string code)
-    {
-        return Ok(new Response
+        [HttpGet("confirm-code")]
+        public async ValueTask<IActionResult> ConfirmAsync(string phone, string code)
         {
-            StatusCode = 200,
-            Message = "Ok",
-            Data = await userService.ConfirmCodeAsync(phone, code)
-        });
-    }
+            return Ok(new Response
+            {
+                StatusCode = 200,
+                Message = "Ok",
+                Data = await userService.ConfirmCodeAsync(phone, code)
+            });
+        }
 
-    [HttpPatch("reset-password")]
-    public async ValueTask<IActionResult> ResetPasswordAsync(string phone, string newPassword)
-    {
-        return Ok(new Response
+        [HttpPatch("reset-password")]
+        public async ValueTask<IActionResult> ResetPasswordAsync(string phone, string newPassword)
         {
-            StatusCode = 200,
-            Message = "Ok",
-            Data = await userService.ResetPasswordAsync(phone, newPassword)
-        });
-    }
+            return Ok(new Response
+            {
+                StatusCode = 200,
+                Message = "Ok",
+                Data = await userService.ResetPasswordAsync(phone, newPassword)
+            });
+        }
 
-    [HttpPatch("change-password")]
-    public async ValueTask<IActionResult> ChangePasswordAsync(string oldPassword, string newPassword)
-    {
-        return Ok(new Response
+        [HttpPatch("change-password")]
+        public async ValueTask<IActionResult> ChangePasswordAsync(string phone, string oldPassword, string newPassword)
         {
-            StatusCode = 200,
-            Message = "Ok",
-            Data = await userService.ChangePasswordAsync(UserPhone, oldPassword, newPassword)
-        });
+            return Ok(new Response
+            {
+                StatusCode = 200,
+                Message = "Ok",
+                Data = await userService.ChangePasswordAsync(phone, oldPassword, newPassword)
+            });
+        }
     }
 }
