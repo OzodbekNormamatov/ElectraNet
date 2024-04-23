@@ -1,32 +1,32 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ElectraNet.WebApi.Models;
+﻿using ElectraNet.WebApi.Models;
+using Microsoft.AspNetCore.Mvc;
 using ElectraNet.Service.Configurations;
-using ElectraNet.Service.DTOs.UserRoles;
-using ElectraNet.Service.Services.UserRoles;
+using ElectraNet.Service.DTOs.Laboratories;
+using ElectraNet.Service.Services.Laboratories;
 
 namespace ElectraNet.WebApi.Controllers;
 
-public class UserRoleController(IUserRoleService userRoleService) : BaseController
+public class LaboratoriesController(ILaboratoryService laboratoryService) : BaseController
 {
     [HttpPost]
-    public async ValueTask<IActionResult> PostAsync([FromBody] UserRoleCreateModel createModel)
+    public async ValueTask<IActionResult> PostAsync([FromBody] LaboratoryCreateModel createModel)
     {
         return Ok(new Response
         {
             StatusCode = 200,
             Message = "Ok",
-            Data = await userRoleService.CreateAsync(createModel)
+            Data = await laboratoryService.CreateAsync(createModel)
         });
     }
 
     [HttpPut("{id:long}")]
-    public async ValueTask<IActionResult> PutAsync(long id, [FromBody] UserRoleUpdateModel updateModel)
+    public async ValueTask<IActionResult> PutAsync(long id, [FromBody] LaboratoryUpdateModel updateModel)
     {
         return Ok(new Response
         {
             StatusCode = 200,
             Message = "Ok",
-            Data = await userRoleService.UpdateAsync(id, updateModel)
+            Data = await laboratoryService.UpdateAsync(id, updateModel)
         });
     }
 
@@ -37,7 +37,7 @@ public class UserRoleController(IUserRoleService userRoleService) : BaseControll
         {
             StatusCode = 200,
             Message = "Ok",
-            Data = await userRoleService.DeleteAsync(id)
+            Data = await laboratoryService.DeleteAsync(id)
         });
     }
 
@@ -48,21 +48,21 @@ public class UserRoleController(IUserRoleService userRoleService) : BaseControll
         {
             StatusCode = 200,
             Message = "Ok",
-            Data = await userRoleService.GetByIdAsync(id)
+            Data = await laboratoryService.GetByIdAsync(id)
         });
     }
 
     [HttpGet]
     public async ValueTask<IActionResult> GetAsync(
         [FromQuery] PaginationParams @params,
-        [FromQuery] Filter filter)
+        [FromQuery] Filter filter,
+        [FromQuery] string search = null)
     {
         return Ok(new Response
         {
             StatusCode = 200,
             Message = "Ok",
-            Data = await userRoleService.GetAllAsync(@params, filter)
+            Data = await laboratoryService.GetAllAsync(@params, filter, search)
         });
     }
 }
-

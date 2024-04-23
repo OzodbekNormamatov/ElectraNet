@@ -1,9 +1,8 @@
-﻿namespace ElectraNet.WebApi.Models
+﻿namespace ElectraNet.WebApi.Models;
+
+public class Response
 {
-    public class Response
-    {
-        public int StatusCode { get; set; }
-        public string Message { get; set; }
-        public object Data { get; set; }
-    }
+    public int StatusCode { get; set; }
+    public string Message { get; set; }
+    public object Data { get; set; }
 }

@@ -1,10 +1,20 @@
-﻿using ElectraNet.Service.Helpers;
+﻿using ElectraNet.DataAccess.UnitOfWorks;
+using ElectraNet.Service.Helpers;
+using ElectraNet.Service.Services.Assets;
+using ElectraNet.Service.Services.Cables;
+using ElectraNet.Service.Services.Employees;
+using ElectraNet.Service.Services.Laboratories;
+using ElectraNet.Service.Services.Organizations;
+using ElectraNet.Service.Services.Permissions;
+using ElectraNet.Service.Services.Positions;
+using ElectraNet.Service.Services.ServiceRecords;
+using ElectraNet.Service.Services.TransformerPoints;
+using ElectraNet.Service.Services.Transformers;
+using ElectraNet.Service.Services.UserPermissions;
+using ElectraNet.Service.Services.UserRoles;
+using ElectraNet.Service.Services.Users;
 using ElectraNet.WebApi.Middlewares;
 using ElectraNet.DataAccess.UnitOfWorks;
-using ElectraNet.Service.Services.Users;
-using ElectraNet.Service.Services.Assets;
-using ElectraNet.Service.Services.UserRoles;
-
 namespace ElectraNet.WebApi.Helpers;
 
 public static class ServicesCollection
@@ -13,6 +23,16 @@ public static class ServicesCollection
     {
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IAssetService, AssetService>();
+        services.AddScoped<ICableService, CableService>();
+        services.AddScoped<IEmployeeService, EmployeeService>();
+        services.AddScoped<ILaboratoryService, LaboratoryService>();
+        services.AddScoped<IOrganizationService, OrganizationService>();
+        services.AddScoped<IPermissionService, PermissionService>();
+        services.AddScoped<IPositionService, PositionService>();
+        services.AddScoped<IServiceRecordService, ServiceRecordService>();
+        services.AddScoped<ITransformerPointService, TransformerPointService>();
+        services.AddScoped<ITransformerService, TransformerService>();
+        services.AddScoped<IUserPermissionService, UserPermissionService>();
         services.AddScoped<IUserRoleService, UserRoleService>();
         services.AddScoped<IUserService, UserService>();
     }

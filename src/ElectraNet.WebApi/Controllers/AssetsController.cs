@@ -4,7 +4,7 @@ using ElectraNet.Service.DTOs.Assets;
 using ElectraNet.Service.Services.Assets;
 
 namespace ElectraNet.WebApi.Controllers;
-public class AssetController(IAssetService assetService) : BaseController
+public class AssetsController(IAssetService assetService) : BaseController
 {
     [HttpPost]
     public async ValueTask<IActionResult> PostAsync(AssetCreateModel createModel)
