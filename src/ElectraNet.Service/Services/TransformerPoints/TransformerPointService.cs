@@ -66,7 +66,7 @@ public class TransformerPointService(
 
     public async ValueTask<TransformerPointViewModel> GetByIdAsync(long id)
     {
-        var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Id == id)
+        var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Id == id && !t.IsDeleted)
             ?? throw new NotFoundException($"TransformerPoint is not found with this ID = {id}");
 
         return mapper.Map<TransformerPointViewModel>(existTransformerPoint);

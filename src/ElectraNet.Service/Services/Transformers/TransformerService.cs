@@ -67,7 +67,7 @@ public class TransformerService(
 
     public async ValueTask<TransformerViewModel> GetByIdAsync(long id)
     {
-        var existTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Id == id)
+        var existTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Id == id && !t.IsDeleted)
            ?? throw new NotFoundException($"Transformer is not found with this ID = {id}");
 
         return mapper.Map<TransformerViewModel>(existTransformer);
