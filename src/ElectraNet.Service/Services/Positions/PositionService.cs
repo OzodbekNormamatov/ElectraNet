@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
-using ElectraNet.DataAccess.UnitOfWorks;
-using ElectraNet.Domain.Enitites.Positions;
-using ElectraNet.Service.Configurations;
-using ElectraNet.Service.DTOs.Positions;
 using ElectraNet.Service.Exceptions;
 using ElectraNet.Service.Extensions;
+using Microsoft.EntityFrameworkCore;
+using ElectraNet.Service.Configurations;
+using ElectraNet.Service.DTOs.Positions;
+using ElectraNet.DataAccess.UnitOfWorks;
+using ElectraNet.Domain.Enitites.Positions;
 
 namespace ElectraNet.Service.Services.Positions;
 
@@ -12,7 +13,7 @@ public class PositionService(IMapper mapper, IUnitOfWork unitOfWork) : IPosition
 {
     public async ValueTask<PositionViewModel> CreateAsync(PositionCreateModel createModel)
     {
-        var existPosition = await unitOfWork.Positions.SelectAsync(p => p.Name == createModel.Name);
+        var existPosition = await unitOfWork.Positions.SelectAsync(p => p.Name.ToLower() == createModel.Name.ToLower());
 
         if (existPosition is not null)
             throw new AlreadyExistException("Position is already exist");
@@ -26,7 +27,7 @@ public class PositionService(IMapper mapper, IUnitOfWork unitOfWork) : IPosition
 
     public async ValueTask<PositionViewModel> UpdateAsync(long id, PositionUpdateModel updateModel)
     {
-        var existPosition = await unitOfWork.Positions.SelectAsync(p => p.Id == id && !p.IsDeleted)
+        var existPosition = await unitOfWork.Positions.SelectAsync(p => p.Id == id)
             ?? throw new NotFoundException($"Position is not found with this ID = {id}");
 
         var alreadyExistPosition = await unitOfWork.Positions.SelectAsync(p => p.Name.ToLower() == updateModel.Name.ToLower());
@@ -66,11 +67,11 @@ public class PositionService(IMapper mapper, IUnitOfWork unitOfWork) : IPosition
           .SelectAsQueryable(expression: e => !e.IsDeleted, isTracked: false)
           .OrderBy(filter);
 
-
         if (!string.IsNullOrEmpty(search))
             positions = positions.Where(position =>
                 position.Name.Contains(search, StringComparison.OrdinalIgnoreCase));
 
+        var paginatePosition = positions.ToPaginateAsQueryable(@params).ToListAsync();
         return await Task.FromResult(mapper.Map<IEnumerable<PositionViewModel>>(positions));
     }
 }

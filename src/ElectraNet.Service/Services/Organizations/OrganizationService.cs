@@ -5,6 +5,7 @@ using ElectraNet.Service.Exceptions;
 using ElectraNet.DataAccess.UnitOfWorks;
 using ElectraNet.Service.Configurations;
 using ElectraNet.Service.DTOs.Organizations;
+using ElectraNet.Domain.Enitites.Organizations;
 
 namespace ElectraNet.Service.Services.Organizations;
 
@@ -19,8 +20,9 @@ public class OrganizationService(IMapper mapper, IUnitOfWork unitOfWork) : IOrga
         if (existOrganization is not null)
             throw new AlreadyExistException($"This organization is already exists | OrganizationName = {createModel.Name} Address Name = {createModel.Address}");
 
+        var organization = mapper.Map<Organization>(createModel);
         existOrganization.Create();
-        var createdOrganization = await unitOfWork.Organizations.InsertAsync(existOrganization);
+        var createdOrganization = await unitOfWork.Organizations.InsertAsync(organization);
         await unitOfWork.SaveAsync();
 
         return mapper.Map<OrganizationViewModel>(createdOrganization);
@@ -58,13 +60,14 @@ public class OrganizationService(IMapper mapper, IUnitOfWork unitOfWork) : IOrga
 
     public async ValueTask<IEnumerable<OrganizationViewModel>> GetAllAsync(PaginationParams @params, Filter filter, string search = null)
     {
-        var organizations = unitOfWork.Organizations.SelectAsQueryable(expression: o=> ! o.IsDeleted, isTracked:false).OrderBy(filter);
+        var organizations = unitOfWork.Organizations.SelectAsQueryable(expression: o => !o.IsDeleted, isTracked: false).OrderBy(filter);
 
         if (!string.IsNullOrEmpty(search))
             organizations = organizations.Where(p =>
              p.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
              p.Address.Contains(search, StringComparison.OrdinalIgnoreCase));
 
+        var paginateOrganizations = await organizations.ToPaginateAsQueryable(@params).ToListAsync();
         return mapper.Map<IEnumerable<OrganizationViewModel>>(await organizations.ToPaginateAsQueryable(@params).ToListAsync());
     }
 
@@ -72,6 +75,7 @@ public class OrganizationService(IMapper mapper, IUnitOfWork unitOfWork) : IOrga
     {
         var existOrganization = await unitOfWork.Organizations.SelectAsync(expression: o => o.Id == id && !o.IsDeleted)
             ?? throw new NotFoundException($"Organization is not found with this ID = {id}");
+
         return mapper.Map<OrganizationViewModel>(existOrganization);
     }
 }
