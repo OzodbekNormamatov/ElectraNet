@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using ElectraNet.Service.Users;
 using ElectraNet.Service.Extensions;
 using ElectraNet.Service.Exceptions;
 using ElectraNet.DataAccess.UnitOfWorks;
@@ -7,6 +6,9 @@ using ElectraNet.Service.Configurations;
 using ElectraNet.Service.DTOs.Employees;
 using ElectraNet.Domain.Enitites.Employees;
 using ElectraNet.Service.Services.Positions;
+using Microsoft.EntityFrameworkCore;
+using ElectraNet.Service.Services.Users;
+using ElectraNet.Service.Services.Organizations;
 
 namespace ElectraNet.Service.Services.Employees;
 
@@ -70,7 +72,7 @@ public class EmployeeService
         return true;
     }
 
-    public async ValueTask<IEnumerable<EmployeeViewModel>> GetAllAsync(PaginationParams @params, Filter filter, string search = null)
+    public async ValueTask<IEnumerable<EmployeeViewModel>> GetAllAsync(PaginationParams @params, Filter filter)
     {
         var employees = unitOfWork.Employees
             .SelectAsQueryable(expression: e => !e.IsDeleted, includes: ["Organization", "User", "Position"], isTracked: false)
