@@ -1,10 +1,10 @@
-using Serilog;
 using ElectraNet;
-using ElectraNet.WebApi.Helpers;
 using ElectraNet.Service.Mappers;
-using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Serialization;
+using ElectraNet.WebApi.Helpers;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +17,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultDbConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultDbConnection")));
 
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
@@ -39,11 +39,11 @@ app.InjectEnvironmentItems();
 
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    context.Database.EnsureCreated();
-    context.Database.Migrate();
-}
+    var services = scope.ServiceProvider;
+    var dbContext = services.GetRequiredService<AppDbContext>();
 
+    dbContext.Database.Migrate();
+}
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

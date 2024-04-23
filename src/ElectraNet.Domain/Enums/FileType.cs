@@ -2,5 +2,6 @@
 
 public enum FileType
 {
-    Images
+    Images,
+    Files
 }
