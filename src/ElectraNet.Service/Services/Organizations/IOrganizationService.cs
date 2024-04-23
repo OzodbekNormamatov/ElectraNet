@@ -12,4 +12,3 @@ public interface IOrganizationService
     ValueTask<OrganizationViewModel> UpdateAsync(long id, OrganizationUpdateModel updateModel);
     ValueTask<IEnumerable<OrganizationViewModel>> GetAllAsync(PaginationParams @params, Filter filter, string search = null);
 }
-
