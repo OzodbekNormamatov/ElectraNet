@@ -1,22 +1,19 @@
-﻿
-
+﻿using Microsoft.EntityFrameworkCore;
+using ElectraNet.Domain.Enitites.Users;
 using ElectraNet.Domain.Enitites.Cables;
 using ElectraNet.Domain.Enitites.Commons;
 using ElectraNet.Domain.Enitites.Employees;
+using ElectraNet.Domain.Enitites.Positions;
+using ElectraNet.Domain.Enitites.Transformers;
 using ElectraNet.Domain.Enitites.Laboratories;
 using ElectraNet.Domain.Enitites.Organizations;
-using ElectraNet.Domain.Enitites.Positions;
 using ElectraNet.Domain.Enitites.ServiceRecords;
 using ElectraNet.Domain.Enitites.TransformerPoints;
-using ElectraNet.Domain.Enitites.Transformers;
-using ElectraNet.Domain.Enitites.Users;
-using ElectraNet.Domain.Enums;
-using Microsoft.EntityFrameworkCore;
 
 namespace ElectraNet;
 public class AppDbContext : DbContext
 {
-    public AppDbContext(DbContextOptions options) : base(options) { }
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<User> Users { get; set; }
     public DbSet<Cable> Cables { get; set; }
