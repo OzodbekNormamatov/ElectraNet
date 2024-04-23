@@ -51,13 +51,13 @@ namespace ElectraNet.WebApi.Controllers
         }
 
         [HttpPatch("change-password")]
-        public async ValueTask<IActionResult> ChangePasswordAsync(string oldPassword, string newPassword)
+        public async ValueTask<IActionResult> ChangePasswordAsync(string phone, string oldPassword, string newPassword)
         {
             return Ok(new Response
             {
                 StatusCode = 200,
                 Message = "Ok",
-                Data = await userService.ChangePasswordAsync(UserPhone, oldPassword, newPassword)
+                Data = await userService.ChangePasswordAsync(phone, oldPassword, newPassword)
             });
         }
     }

@@ -7,7 +7,7 @@ namespace ElectraNet.WebApi.Controllers;
 public class AssetController(IAssetService assetService) : BaseController
 {
     [HttpPost]
-    public async ValueTask<IActionResult> PostAsync([FromBody] AssetCreateModel createModel)
+    public async ValueTask<IActionResult> PostAsync(AssetCreateModel createModel)
     {
         return Ok(new Response
         {

@@ -2,6 +2,8 @@
 using ElectraNet.WebApi.Middlewares;
 using ElectraNet.DataAccess.UnitOfWorks;
 using ElectraNet.Service.Services.Users;
+using ElectraNet.Service.Services.Assets;
+using ElectraNet.Service.Services.UserRoles;
 
 namespace ElectraNet.WebApi.Helpers;
 
@@ -10,8 +12,9 @@ public static class ServicesCollection
     public static void AddServices(this IServiceCollection services)
     {
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IAssetService, AssetService>();
+        services.AddScoped<IUserRoleService, UserRoleService>();
         services.AddScoped<IUserService, UserService>();
-        
     }
 
     public static void AddExceptionHandlers(this IServiceCollection services)
