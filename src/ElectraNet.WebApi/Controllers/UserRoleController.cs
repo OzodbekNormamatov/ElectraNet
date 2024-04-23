@@ -1,10 +1,10 @@
-﻿using ElectraNet.Service.Configurations;
+﻿using Microsoft.AspNetCore.Mvc;
+using ElectraNet.WebApi.Models;
+using ElectraNet.Service.Configurations;
 using ElectraNet.Service.DTOs.UserRoles;
 using ElectraNet.Service.Services.UserRoles;
-using ElectraNet.WebApi.Models;
-using Microsoft.AspNetCore.Mvc;
 
-namespace ElectraNet.WebApi.Controllers.UserRoles;
+namespace ElectraNet.WebApi.Controllers;
 
 public class UserRoleController(IUserRoleService userRoleService) : BaseController
 {
@@ -20,7 +20,7 @@ public class UserRoleController(IUserRoleService userRoleService) : BaseControll
     }
 
     [HttpPut("{id:long}")]
-    public async ValueTask<IActionResult> PutAsync(long id, [FromBody] AssetUpdateModel updateModel)
+    public async ValueTask<IActionResult> PutAsync(long id, [FromBody] UserRoleUpdateModel updateModel)
     {
         return Ok(new Response
         {

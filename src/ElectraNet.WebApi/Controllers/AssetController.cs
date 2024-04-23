@@ -1,11 +1,9 @@
-﻿using ElectraNet.Service.Configurations;
-using ElectraNet.Service.DTOs.Assets;
-using ElectraNet.Service.DTOs.UserRoles;
-using ElectraNet.Service.Services.Assets;
+﻿using Microsoft.AspNetCore.Mvc;
 using ElectraNet.WebApi.Models;
-using Microsoft.AspNetCore.Mvc;
+using ElectraNet.Service.DTOs.Assets;
+using ElectraNet.Service.Services.Assets;
 
-namespace ElectraNet.WebApi.Controllers.AssetController;
+namespace ElectraNet.WebApi.Controllers;
 public class AssetController(IAssetService assetService) : BaseController
 {
     [HttpPost]
@@ -15,18 +13,7 @@ public class AssetController(IAssetService assetService) : BaseController
         {
             StatusCode = 200,
             Message = "Ok",
-            Data = await assetService.CreateAsync(createModel)
-        });
-    }
-
-    [HttpPut("{id:long}")]
-    public async ValueTask<IActionResult> PutAsync(long id, [FromBody] AssetUpdateModel updateModel)
-    {
-        return Ok(new Response
-        {
-            StatusCode = 200,
-            Message = "Ok",
-            Data = await assetService.UpdateAsync(id, updateModel)
+            Data = await assetService.UploadAsync(createModel)
         });
     }
 
@@ -49,19 +36,6 @@ public class AssetController(IAssetService assetService) : BaseController
             StatusCode = 200,
             Message = "Ok",
             Data = await assetService.GetByIdAsync(id)
-        });
-    }
-
-    [HttpGet]
-    public async ValueTask<IActionResult> GetAsync(
-        [FromQuery] PaginationParams @params,
-        [FromQuery] Filter filter)
-    {
-        return Ok(new Response
-        {
-            StatusCode = 200,
-            Message = "Ok",
-            Data = await assetService.GetAllAsync(@params, filter)
         });
     }
 }
