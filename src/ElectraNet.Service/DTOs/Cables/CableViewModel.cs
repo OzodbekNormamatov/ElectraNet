@@ -1,4 +1,4 @@
-﻿using ElectraNet.Domain.Enitites.Commons;
+﻿using ElectraNet.Service.DTOs.Assets;
 
 namespace ElectraNet.Service.DTOs.Cables;
 
@@ -8,5 +8,5 @@ public class CableViewModel
     public long Voltage { get; set; }
     public string Description { get; set; }
     public long AssetId { get; set; }
-    public Asset Asset { get; set; }
+    public AssetViewModel Asset { get; set; }
 }
