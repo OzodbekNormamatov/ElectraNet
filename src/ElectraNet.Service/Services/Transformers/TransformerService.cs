@@ -1,18 +1,19 @@
 ﻿using AutoMapper;
-using ElectraNet.Service.Exceptions;
-using ElectraNet.Service.Extensions;
-using Microsoft.EntityFrameworkCore;
 using ElectraNet.DataAccess.UnitOfWorks;
+using ElectraNet.Domain.Enitites.Transformers;
 using ElectraNet.Service.Configurations;
 using ElectraNet.Service.DTOs.Transformers;
-using ElectraNet.Domain.Enitites.Transformers;
+using ElectraNet.Service.Exceptions;
+using ElectraNet.Service.Extensions;
+using ElectraNet.Service.Services.TransformerPoints;
+using Microsoft.EntityFrameworkCore;
 
 namespace ElectraNet.Service.Services.Transformers;
 
 public class TransformerService(
     IMapper mapper,
     IUnitOfWork unitOfWork,
-    ITransformerService transformerService) : ITransformerService
+    ITransformerPointService transformerService) : ITransformerService
 {
     public async ValueTask<TransformerViewModel> CreateAsync(TransformerCreateModel createModel)
     {

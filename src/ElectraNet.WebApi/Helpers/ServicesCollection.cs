@@ -14,7 +14,6 @@ using ElectraNet.Service.Services.UserPermissions;
 using ElectraNet.Service.Services.UserRoles;
 using ElectraNet.Service.Services.Users;
 using ElectraNet.WebApi.Middlewares;
-using ElectraNet.DataAccess.UnitOfWorks;
 namespace ElectraNet.WebApi.Helpers;
 
 public static class ServicesCollection
