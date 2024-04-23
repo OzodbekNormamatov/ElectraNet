@@ -4,9 +4,12 @@ using ElectraNet.Service.Extensions;
 using ElectraNet.Service.Exceptions;
 using ElectraNet.Service.Configurations;
 using ElectraNet.DataAccess.UnitOfWorks;
+using ElectraNet.Service.Services.Cables;
 using ElectraNet.Service.DTOs.Laboratories;
+using ElectraNet.Service.Services.Employees;
 using ElectraNet.Domain.Enitites.Laboratories;
 using ElectraNet.Service.Services.TransformerPoints;
+
 using ElectraNet.Service.Services.Employees;
 using ElectraNet.Service.Services.Cables;
 
@@ -27,14 +30,16 @@ public class LaboratoryService
         if (createModel.TransformerPointId is not null)
             await transformerPointService.GetByIdAsync(Convert.ToInt64(createModel.TransformerPointId));
 
-        await employeeService.GetByIdAsync(createModel.MasterId);
+        var existEmployee = await employeeService.GetByIdAsync(createModel.MasterId);
 
         var laboratory = mapper.Map<Laboratory>(createModel);
         laboratory.Create();
         var createdLaboratory = await unitOfWork.Laboratories.InsertAsync(laboratory);
         await unitOfWork.SaveAsync();
 
-        return mapper.Map<LaboratoryViewModel>(createdLaboratory);
+        var viewModel = mapper.Map<LaboratoryViewModel>(createdLaboratory);
+        viewModel.Employee = existEmployee;
+        return viewModel;
     }
 
     public async ValueTask<LaboratoryViewModel> UpdateAsync(long id, LaboratoryUpdateModel updateModel)
@@ -48,14 +53,16 @@ public class LaboratoryService
         if (updateModel.TransformerPointId is not null)
             await transformerPointService.GetByIdAsync(Convert.ToInt64(updateModel.TransformerPointId));
 
-        await employeeService.GetByIdAsync(updateModel.MasterId);
+        var existEmployee = await employeeService.GetByIdAsync(updateModel.MasterId);
 
         mapper.Map(existLaboratory, updateModel);
         existLaboratory.Update();
         var updateLaboratory = await unitOfWork.Laboratories.UpdateAsync(existLaboratory);
         await unitOfWork.SaveAsync();
 
-        return mapper.Map<LaboratoryViewModel>(updateLaboratory);
+        var viewModel = mapper.Map<LaboratoryViewModel>(existLaboratory);
+        viewModel.Employee = existEmployee;
+        return viewModel;
     }
 
     public async ValueTask<bool> DeleteAsync(long id)
@@ -72,7 +79,7 @@ public class LaboratoryService
 
     public async ValueTask<LaboratoryViewModel> GetByIdAsync(long id)
     {
-        var existLaboratory = await unitOfWork.Laboratories.SelectAsync(l => l.Id == id && !l.IsDeleted)
+        var existLaboratory = await unitOfWork.Laboratories.SelectAsync(l => l.Id == id && !l.IsDeleted, includes: ["Cable", "TransformerPoint", "Employee"])
            ?? throw new NotFoundException("Laboratory is not found");
 
         return mapper.Map<LaboratoryViewModel> (existLaboratory) ;
