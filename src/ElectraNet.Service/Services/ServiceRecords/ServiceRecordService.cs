@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using ElectraNet.Service.Exceptions;
 using ElectraNet.DataAccess.UnitOfWorks;
 using ElectraNet.Service.Configurations;
+using ElectraNet.Service.Services.Cables;
+using ElectraNet.Service.Services.Employees;
 using ElectraNet.Service.DTOs.ServiceRecords;
 using ElectraNet.Domain.Enitites.ServiceRecords;
 using ElectraNet.Service.Services.TransformerPoints;
@@ -25,14 +27,16 @@ public class ServiceRecordService
         if (createModel.TransformerPointId is not null)
             await transformerPointService.GetByIdAsync(Convert.ToInt64(createModel.TransformerPointId));
 
-        await await employeeService.GetByIdAsync(createModel.MasterId);
+        var existEmployee = await employeeService.GetByIdAsync(createModel.MasterId);
 
         var serviceRecord = mapper.Map<ServiceRecord>(createModel);
         serviceRecord.Create();
         var createdServiceRecord = await unitOfWork.ServiceRecords.InsertAsync(serviceRecord);
         await unitOfWork.SaveAsync();
 
-        return mapper.Map<ServiceRecordViewModel>(createdServiceRecord);    
+        var viewModel = mapper.Map<ServiceRecordViewModel>(createdServiceRecord);
+        viewModel.Employee = existEmployee;
+        return viewModel;
     }
 
     public async ValueTask<ServiceRecordViewModel> UpdateAsync(long id, ServiceRecordUpdateModel updateModel)
@@ -46,14 +50,16 @@ public class ServiceRecordService
         if (updateModel.TransformerPointId is not null)
             await transformerPointService.GetByIdAsync(Convert.ToInt64(updateModel.TransformerPointId));
 
-        await await employeeService.GetByIdAsync(updateModel.MasterId);
+        var existEmployee = await employeeService.GetByIdAsync(updateModel.MasterId);
 
         mapper.Map(existServiceRecord, updateModel);
         existServiceRecord.Update();
         var updateServiceRecord = await unitOfWork.ServiceRecords.UpdateAsync(existServiceRecord);
         await unitOfWork.SaveAsync();
 
-        return mapper.Map<ServiceRecordViewModel>(existServiceRecord);
+        var viewModel = mapper.Map<ServiceRecordViewModel>(updateServiceRecord);
+        viewModel.Employee = existEmployee;
+        return viewModel;
     }
 
     public async ValueTask<bool> DeleteAsync(long id)
@@ -69,7 +75,7 @@ public class ServiceRecordService
     }
     public async ValueTask<ServiceRecordViewModel> GetByIdAsync(long id)
     {
-        var existServiceRecord = await unitOfWork.ServiceRecords.SelectAsync(s => s.Id == id && !s.IsDeleted)
+        var existServiceRecord = await unitOfWork.ServiceRecords.SelectAsync(expression: s => s.Id == id && !s.IsDeleted, includes: ["Employee"])
             ?? throw new NotFoundException("ServiceRecord is not found");
 
         return mapper.Map<ServiceRecordViewModel>(existServiceRecord);
