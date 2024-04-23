@@ -26,7 +26,7 @@ public class UserRoleService(IMapper mapper, IUnitOfWork unitOfWork) : IUserRole
         return mapper.Map<UserRoleViewModel>(createdUserRole);
     }
 
-    public async ValueTask<UserRoleViewModel> UpdateAsync(long id, UserRoleUpdateModel userRoleUpdateModel)
+    public async ValueTask<UserRoleViewModel> UpdateAsync(long id, AssetUpdateModel userRoleUpdateModel)
     {
         var existUserRole = await unitOfWork.UserRoles.SelectAsync(u => u.Id == id)
             ?? throw new NotFoundException("UserRole is not found");

@@ -1,6 +1,6 @@
 ﻿namespace ElectraNet.Service.DTOs.UserRoles;
 
-public class UserRoleUpdateModel
+public class AssetUpdateModel
 {
     public string Name { get; set; }
 }
