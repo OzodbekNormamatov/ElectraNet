@@ -65,6 +65,7 @@ public class OrganizationsController(IOrganizationService organizationService) :
             Data = await organizationService.GetAllAsync(@params, filter, search)
         });
     }
+
 }
 
 
