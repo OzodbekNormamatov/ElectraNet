@@ -10,6 +10,9 @@ using ElectraNet.Service.Services.Employees;
 using ElectraNet.Domain.Enitites.Laboratories;
 using ElectraNet.Service.Services.TransformerPoints;
 
+using ElectraNet.Service.Services.Employees;
+using ElectraNet.Service.Services.Cables;
+
 namespace ElectraNet.Service.Services.Laboratories;
 
 public class LaboratoryService
