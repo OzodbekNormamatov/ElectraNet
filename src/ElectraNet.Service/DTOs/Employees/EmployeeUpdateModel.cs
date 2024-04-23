@@ -2,7 +2,7 @@
 
 public class EmployeeUpdateModel
 {
-    public long? OrganizationId { get; set; }
-    public long? UserId { get; set; }
-    public long? PositionId { get; set; }
+    public long OrganizationId { get; set; }
+    public long UserId { get; set; }
+    public long PositionId { get; set; }
 }

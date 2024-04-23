@@ -1,63 +1,63 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using ElectraNet.Service.Extensions;
 using ElectraNet.Service.Exceptions;
+using ElectraNet.Service.Services.Users;
 using ElectraNet.DataAccess.UnitOfWorks;
 using ElectraNet.Service.Configurations;
 using ElectraNet.Service.DTOs.Employees;
 using ElectraNet.Domain.Enitites.Employees;
 using ElectraNet.Service.Services.Positions;
-using Microsoft.EntityFrameworkCore;
-using ElectraNet.Service.Services.Users;
 using ElectraNet.Service.Services.Organizations;
 
 namespace ElectraNet.Service.Services.Employees;
 
 public class EmployeeService
     (IMapper mapper,
-    UnitOfWork unitOfWork,
+    IUnitOfWork unitOfWork,
     IUserService userService,
     IPositionService positionService,
     IOrganizationService organizationService) : IEmployeeService
 {
     public async ValueTask<EmployeeViewModel> CreateAsync(EmployeeCreateModel createModel)
     {
-        if (createModel.UserId is not null)
-            await userService.GetByIdAsync(Convert.ToInt64(createModel.UserId));
-
-        if (createModel.PositionId is not null)
-            await positionService.GetByIdAsync(Convert.ToInt64(createModel.PositionId));
-
-        if (createModel.OrganizationId is not null)
-            await organizationService.GetByIdAsync(Convert.ToInt64(createModel.OrganizationId));
+        var existUser = await userService.GetByIdAsync(createModel.UserId);
+        var existPosition = await positionService.GetByIdAsync(createModel.PositionId);
+        var existOrganization = await organizationService.GetByIdAsync(createModel.OrganizationId);
 
         var employee = mapper.Map<Employee>(createModel);
         employee.Create();
         var createdEmployee = await unitOfWork.Employees.InsertAsync(employee);
         await unitOfWork.SaveAsync();
 
-        return mapper.Map<EmployeeViewModel>(createdEmployee);
+        var viewModel = mapper.Map<EmployeeViewModel>(createdEmployee);
+        viewModel.User = existUser;
+        viewModel.Position = existPosition;
+        viewModel.Organization = existOrganization;
+
+        return viewModel;
     }
 
     public async ValueTask<EmployeeViewModel> UpdateAsync(long id, EmployeeUpdateModel updateModel)
     {
-        var existEmployee = await unitOfWork.Employees.SelectAsync(e => e.Id == id)
+        var existEmployee = await unitOfWork.Employees.SelectAsync(e => e.Id == id && !e.IsDeleted)
             ?? throw new NotFoundException("Employee is not found");
 
-        if (updateModel.UserId is not null)
-            await userService.GetByIdAsync(Convert.ToInt64(updateModel.UserId));
-
-        if (updateModel.PositionId is not null)
-            await positionService.GetByIdAsync(Convert.ToInt64(updateModel.PositionId));
-
-        if (updateModel.OrganizationId is not null)
-            await organizationService.GetByIdAsync(Convert.ToInt64(updateModel.OrganizationId));
+        var existUser = await userService.GetByIdAsync(updateModel.UserId);
+        var existPosition = await positionService.GetByIdAsync(updateModel.PositionId);
+        var existOrganization = await organizationService.GetByIdAsync(updateModel.OrganizationId);
 
         mapper.Map(existEmployee, updateModel);
         existEmployee.Update();
         var updateEmployee = await unitOfWork.Employees.UpdateAsync(existEmployee);
         await unitOfWork.SaveAsync();
 
-        return mapper.Map<EmployeeViewModel>(updateEmployee);
+        var viewModel = mapper.Map<EmployeeViewModel>(updateEmployee);
+        viewModel.User = existUser;
+        viewModel.Position = existPosition;
+        viewModel.Organization = existOrganization;
+
+        return viewModel;
     }
 
     public async ValueTask<bool> DeleteAsync(long id)
@@ -84,7 +84,7 @@ public class EmployeeService
 
     public async ValueTask<EmployeeViewModel> GetByIdAsync(long id)
     {
-        var existEmployee = await unitOfWork.Employees.SelectAsync(e => e.Id == id && !e.IsDeleted)
+        var existEmployee = await unitOfWork.Employees.SelectAsync(expression: e => e.Id == id && !e.IsDeleted, includes: ["Organization", "User", "Position"])
             ?? throw new NotFoundException("Employee is not found");
 
         return mapper.Map<EmployeeViewModel>(existEmployee);
