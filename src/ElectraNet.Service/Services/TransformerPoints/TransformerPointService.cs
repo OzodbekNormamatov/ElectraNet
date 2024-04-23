@@ -1,17 +1,17 @@
 ﻿using AutoMapper;
-using ElectraNet.DataAccess.UnitOfWorks;
-using ElectraNet.Domain.Enitites.TransformerPoints;
-using ElectraNet.Service.Configurations;
-using ElectraNet.Service.DTOs.TransformerPoints;
 using ElectraNet.Service.Exceptions;
 using ElectraNet.Service.Extensions;
+using Microsoft.EntityFrameworkCore;
+using ElectraNet.DataAccess.UnitOfWorks;
+using ElectraNet.Service.Configurations;
+using ElectraNet.Service.DTOs.TransformerPoints;
 using ElectraNet.Service.Services.Organizations;
-using ElectraNet.Service.Services.Transformers;
+using ElectraNet.Domain.Enitites.TransformerPoints;
 
 namespace ElectraNet.Service.Services.TransformerPoints;
 
 public class TransformerPointService(
-    IMapper mapper, 
+    IMapper mapper,
     IUnitOfWork unitOfWork,
     IOrganizationService organizationService) : ITransformerPointService
 {
@@ -35,7 +35,7 @@ public class TransformerPointService(
 
     public async ValueTask<TransformerPointViewModel> UpdateAsync(long id, TransformerPointUpdateModel updateModel)
     {
-        var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Id == id)
+        var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Id == id && !t.IsDeleted)
           ?? throw new NotFoundException($"TransformerPoint is not found with this ID = {id}");
 
         if (updateModel.OrganizationId is not null)
@@ -43,7 +43,7 @@ public class TransformerPointService(
 
         var alreadyExistTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Title.ToLower() == updateModel.Title.ToLower());
         if (alreadyExistTransformerPoint is not null)
-            throw new AlreadyExistException("TransformerPoint is already exist");   
+            throw new AlreadyExistException("TransformerPoint is already exist");
 
         mapper.Map(existTransformerPoint, updateModel);
         existTransformerPoint.Update();
@@ -57,14 +57,16 @@ public class TransformerPointService(
         var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Id == id)
            ?? throw new NotFoundException($"TransformerPoint is not found with this ID = {id}");
 
-        await unitOfWork.TransformerPoints.DropAsync(existTransformerPoint);
+        existTransformerPoint.Delete();
+        await unitOfWork.TransformerPoints.DeleteAsync(existTransformerPoint);
         await unitOfWork.SaveAsync();
+
         return true;
     }
 
     public async ValueTask<TransformerPointViewModel> GetByIdAsync(long id)
     {
-        var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Id == id)
+        var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Id == id && !t.IsDeleted)
             ?? throw new NotFoundException($"TransformerPoint is not found with this ID = {id}");
 
         return mapper.Map<TransformerPointViewModel>(existTransformerPoint);
@@ -81,6 +83,7 @@ public class TransformerPointService(
                 role.Title.Contains(search, StringComparison.OrdinalIgnoreCase) ||
                 role.Address.Contains(search, StringComparison.OrdinalIgnoreCase));
 
+        var paginateTransformerPoint = transformerPoints.ToPaginateAsQueryable(@params).ToListAsync();
         return await Task.FromResult(mapper.Map<IEnumerable<TransformerPointViewModel>>(transformerPoints));
     }
 }

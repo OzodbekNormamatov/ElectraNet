@@ -1,16 +1,16 @@
 ﻿using AutoMapper;
-using ElectraNet.DataAccess.UnitOfWorks;
-using ElectraNet.Domain.Enitites.Transformers;
-using ElectraNet.Service.Configurations;
-using ElectraNet.Service.DTOs.Transformers;
 using ElectraNet.Service.Exceptions;
 using ElectraNet.Service.Extensions;
-using ElectraNet.Service.Services.Users;
+using Microsoft.EntityFrameworkCore;
+using ElectraNet.DataAccess.UnitOfWorks;
+using ElectraNet.Service.Configurations;
+using ElectraNet.Service.DTOs.Transformers;
+using ElectraNet.Domain.Enitites.Transformers;
 
 namespace ElectraNet.Service.Services.Transformers;
 
 public class TransformerService(
-    IMapper mapper, 
+    IMapper mapper,
     IUnitOfWork unitOfWork,
     ITransformerService transformerService) : ITransformerService
 {
@@ -34,7 +34,7 @@ public class TransformerService(
 
     public async ValueTask<TransformerViewModel> UpdateAsync(long id, TransformerUpdateModel updateModel)
     {
-        var existTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Id == id)
+        var existTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Id == id && !t.IsDeleted)
             ?? throw new NotFoundException($"Transformer is not found with this ID = {id}");
 
         if (updateModel.TransformerPointId is not null)
@@ -55,17 +55,19 @@ public class TransformerService(
 
     public async ValueTask<bool> DeleteAsync(long id)
     {
-        var existTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Id == id)
+        var existTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Id == id && !t.IsDeleted)
            ?? throw new NotFoundException($"Transformer is not found with this ID = {id}");
 
-        await unitOfWork.Transformers.DropAsync(existTransformer);
+        existTransformer.Delete();
+        await unitOfWork.Transformers.DeleteAsync(existTransformer);
         await unitOfWork.SaveAsync();
+
         return true;
     }
 
     public async ValueTask<TransformerViewModel> GetByIdAsync(long id)
     {
-        var existTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Id == id)
+        var existTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Id == id && !t.IsDeleted)
            ?? throw new NotFoundException($"Transformer is not found with this ID = {id}");
 
         return mapper.Map<TransformerViewModel>(existTransformer);
@@ -81,6 +83,7 @@ public class TransformerService(
             transformers = transformers.Where(role =>
                 role.Description.Contains(search, StringComparison.OrdinalIgnoreCase));
 
+        var paginateTransformer = transformers.ToPaginateAsQueryable(@params).ToListAsync();
         return await Task.FromResult(mapper.Map<IEnumerable<TransformerViewModel>>(transformers));
     }
 }

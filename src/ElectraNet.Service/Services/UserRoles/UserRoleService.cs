@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using ElectraNet.Service.Extensions;
 using ElectraNet.Service.Exceptions;
+using ElectraNet.Service.Extensions;
+using Microsoft.EntityFrameworkCore;
 using ElectraNet.Domain.Enitites.Users;
 using ElectraNet.DataAccess.UnitOfWorks;
 using ElectraNet.Service.Configurations;
@@ -14,8 +14,8 @@ public class UserRoleService(IMapper mapper, IUnitOfWork unitOfWork) : IUserRole
     public async ValueTask<UserRoleViewModel> CreateAsync(UserRoleCreateModel userRoleCreateModel)
     {
         var existUserRole = await unitOfWork.UserRoles.SelectAsync(u => u.Name.ToLower() == userRoleCreateModel.Name.ToLower());
-       
-        if(existUserRole is not null)
+
+        if (existUserRole is not null)
             throw new AlreadyExistException("UserRole is already exist");
 
         var userRole = mapper.Map<UserRole>(userRoleCreateModel);
@@ -28,7 +28,7 @@ public class UserRoleService(IMapper mapper, IUnitOfWork unitOfWork) : IUserRole
 
     public async ValueTask<UserRoleViewModel> UpdateAsync(long id, UserRoleUpdateModel userRoleUpdateModel)
     {
-        var existUserRole = await unitOfWork.UserRoles.SelectAsync(u => u.Id == id)
+        var existUserRole = await unitOfWork.UserRoles.SelectAsync(u => u.Id == id && !u.IsDeleted)
             ?? throw new NotFoundException("UserRole is not found");
 
         var alreadyExistUserRole = await unitOfWork.UserRoles.SelectAsync(u => u.Name.ToLower() == userRoleUpdateModel.Name.ToLower());
@@ -48,7 +48,8 @@ public class UserRoleService(IMapper mapper, IUnitOfWork unitOfWork) : IUserRole
         var existUser = await unitOfWork.UserRoles.SelectAsync(u => u.Id == id)
            ?? throw new NotFoundException("UserRole is not found");
 
-        await unitOfWork.UserRoles.DropAsync(existUser);
+        existUser.Delete();
+        await unitOfWork.UserRoles.DeleteAsync(existUser);
         await unitOfWork.SaveAsync();
 
         return true;
@@ -67,7 +68,7 @@ public class UserRoleService(IMapper mapper, IUnitOfWork unitOfWork) : IUserRole
 
     public async ValueTask<UserRoleViewModel> GetByIdAsync(long id)
     {
-        var existUser = await unitOfWork.UserRoles.SelectAsync(u => u.Id == id)
+        var existUser = await unitOfWork.UserRoles.SelectAsync(u => u.Id == id && !u.IsDeleted)
            ?? throw new NotFoundException("UserRole is not found");
 
         return mapper.Map<UserRoleViewModel>(existUser);
