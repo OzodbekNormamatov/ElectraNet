@@ -19,6 +19,7 @@ namespace ElectraNet.WebApi.Controllers
             });
         }
 
+        [AllowAnonymous]
         [HttpGet("send-code")]
         public async ValueTask<IActionResult> SendCodeAsync(string phone)
         {
@@ -30,6 +31,7 @@ namespace ElectraNet.WebApi.Controllers
             });
         }
 
+        [AllowAnonymous]
         [HttpGet("confirm-code")]
         public async ValueTask<IActionResult> ConfirmAsync(string phone, string code)
         {
@@ -41,6 +43,7 @@ namespace ElectraNet.WebApi.Controllers
             });
         }
 
+        [AllowAnonymous]
         [HttpPatch("reset-password")]
         public async ValueTask<IActionResult> ResetPasswordAsync(string phone, string newPassword)
         {
