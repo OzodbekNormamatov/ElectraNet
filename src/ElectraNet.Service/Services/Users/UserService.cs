@@ -51,7 +51,7 @@ public class UserService(IMapper mapper, IUnitOfWork unitOfWork, IUserRoleServic
         if (alreadyExistPermission is not null)
             throw new AlreadyExistException($"This user is already exists");
 
-        mapper.Map(existUser, updateModel);
+        mapper.Map(updateModel , existUser);
         existUser.Update();
         var updateUser = await unitOfWork.Users.UpdateAsync(existUser);
         await unitOfWork.SaveAsync();
@@ -79,11 +79,12 @@ public class UserService(IMapper mapper, IUnitOfWork unitOfWork, IUserRoleServic
 
         if (!string.IsNullOrEmpty(search))
             users = users.Where(p =>
-             p.FirstName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-             p.LastName.Contains(search, StringComparison.OrdinalIgnoreCase));
+             p.FirstName.ToLower().Contains(search.ToLower()) ||
+             p.LastName.ToLower().Contains(search.ToLower()));
 
         return mapper.Map<IEnumerable<UserViewModel>>(await users.ToPaginateAsQueryable(@params).ToListAsync());
     }
+
     public async ValueTask<UserViewModel> GetByIdAsync(long id)
     {
         var existUser = await unitOfWork.Users.SelectAsync(expression: user => user.Id == id && !user.IsDeleted , includes: ["UserRole"])

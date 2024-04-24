@@ -5,6 +5,7 @@ using ElectraNet.Service.DTOs.Assets;
 using ElectraNet.Service.DTOs.Permissions;
 using ElectraNet.Service.DTOs.UserPermissions;
 using ElectraNet.Service.DTOs.UserRoles;
+using ElectraNet.Service.DTOs.Users;
 
 namespace ElectraNet.Service.Mappers;
 
@@ -27,6 +28,11 @@ public class MappingProfile:Profile
         CreateMap<UserRole, UserRoleCreateModel>().ReverseMap();
         CreateMap<UserRole, UserRoleUpdateModel>().ReverseMap();
         CreateMap<UserRoleViewModel, UserRole>().ReverseMap();
+
+        CreateMap<User, UserCreateModel>().ReverseMap();
+        CreateMap<User, UserUpdateModel>().ReverseMap();
+        CreateMap<UserViewModel, User>().ReverseMap();
+        CreateMap<UserCreateModel, UserUpdateModel>().ReverseMap();
 
     }
 }

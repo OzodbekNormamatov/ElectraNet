@@ -46,7 +46,7 @@ public class TransformerService(
         if (alreadyExistTransformer is not null)
             throw new AlreadyExistException("Transformer is already exist");
 
-        mapper.Map(existTransformer, updateModel);
+        mapper.Map(updateModel, existTransformer);
         existTransformer.Update();
         var upateTransformer = await unitOfWork.Transformers.UpdateAsync(existTransformer);
         await unitOfWork.SaveAsync();
@@ -82,7 +82,7 @@ public class TransformerService(
 
         if (!string.IsNullOrEmpty(search))
             transformers = transformers.Where(role =>
-                role.Description.Contains(search, StringComparison.OrdinalIgnoreCase));
+                role.Description.ToLower().Contains(search.ToLower()));
 
         var paginateTransformer = transformers.ToPaginateAsQueryable(@params).ToListAsync();
         return await Task.FromResult(mapper.Map<IEnumerable<TransformerViewModel>>(transformers));
