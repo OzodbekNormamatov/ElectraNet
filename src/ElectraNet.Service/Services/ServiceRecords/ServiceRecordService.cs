@@ -87,6 +87,10 @@ public class ServiceRecordService
             .SelectAsQueryable(expression: s => !s.IsDeleted, includes: ["Cable", "TransformerPoint", "Employee"], isTracked: false)
             .OrderBy(filter);
 
+        if (!string.IsNullOrEmpty(search))
+            serviceRecords = serviceRecords.Where(role =>
+                role.Description.Contains(search, StringComparison.OrdinalIgnoreCase));
+
         var paginateServiceRecords = await serviceRecords.ToPaginateAsQueryable(@params).ToListAsync();
         return mapper.Map<IEnumerable<ServiceRecordViewModel>>(paginateServiceRecords);
     }
