@@ -69,9 +69,9 @@ public class PositionService(IMapper mapper, IUnitOfWork unitOfWork) : IPosition
 
         if (!string.IsNullOrEmpty(search))
             positions = positions.Where(position =>
-                position.Name.Contains(search, StringComparison.OrdinalIgnoreCase));
+                position.Name.ToLower().Contains(search.ToLower()));
 
-        var paginatePosition = positions.ToPaginateAsQueryable(@params).ToListAsync();
-        return await Task.FromResult(mapper.Map<IEnumerable<PositionViewModel>>(positions));
+        var paginatePosition = await positions.ToPaginateAsQueryable(@params).ToListAsync();
+        return mapper.Map<IEnumerable<PositionViewModel>>(paginatePosition);
     }
 }
