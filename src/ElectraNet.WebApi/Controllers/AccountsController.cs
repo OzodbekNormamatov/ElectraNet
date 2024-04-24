@@ -1,11 +1,13 @@
 ﻿using ElectraNet.Service.Services.Users;
 using ElectraNet.WebApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ElectraNet.WebApi.Controllers
 {
     public class AccountsController(IUserService userService) : BaseController
     {
+        [AllowAnonymous]
         [HttpGet("login")]
         public async ValueTask<IActionResult> LoginAsync(string phone, string password)
         {

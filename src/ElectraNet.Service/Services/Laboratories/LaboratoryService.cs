@@ -21,10 +21,10 @@ public class LaboratoryService
 {
     public async ValueTask<LaboratoryViewModel> CreateAsync(LaboratoryCreateModel createModel)
     {
-        if (createModel.CableId is not null)
+        if (createModel.CableId is not 0)
             await cableService.GetByIdAsync(Convert.ToInt64(createModel.CableId));
 
-        if (createModel.TransformerPointId is not null)
+        if (createModel.TransformerPointId is not 0)
             await transformerPointService.GetByIdAsync(Convert.ToInt64(createModel.TransformerPointId));
 
         var existEmployee = await employeeService.GetByIdAsync(createModel.MasterId);
@@ -44,10 +44,10 @@ public class LaboratoryService
         var existLaboratory = await unitOfWork.Laboratories.SelectAsync(l => l.Id == id && !l.IsDeleted)
             ?? throw new NotFoundException("Laboratory is not found");
 
-        if (updateModel.CableId is not null)
+        if (updateModel.CableId is not 0)
             await cableService.GetByIdAsync(Convert.ToInt64(updateModel.CableId));
 
-        if (updateModel.TransformerPointId is not null)
+        if (updateModel.TransformerPointId is not 0)
             await transformerPointService.GetByIdAsync(Convert.ToInt64(updateModel.TransformerPointId));
 
         var existEmployee = await employeeService.GetByIdAsync(updateModel.MasterId);

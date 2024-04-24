@@ -55,14 +55,13 @@ public class UserPermissionsController(IUserPermissionService userPermissionServ
     [HttpGet]
     public async ValueTask<IActionResult> GetAsync(
         [FromQuery] PaginationParams @params,
-        [FromQuery] Filter filter,
-        [FromQuery] string search = null)
+        [FromQuery] Filter filter)
     {
         return Ok(new Response
         {
             StatusCode = 200,
             Message = "Ok",
-            Data = await userPermissionService.GetAllAsync(@params, filter, search)
+            Data = await userPermissionService.GetAllAsync(@params, filter)
         });
     }
 }

@@ -7,7 +7,7 @@ public static class FileHelper
 {
     public static async ValueTask<(string Path, string Name)> CreateFileAsync(IFormFile file, FileType type)
     {
-        var directoryPath = Path.Combine(EnvironmentHelper.WebRootPath, nameof(type));
+        var directoryPath = Path.Combine(EnvironmentHelper.WebRootPath, type.ToString());
         if (!Directory.Exists(directoryPath))
             Directory.CreateDirectory(directoryPath);
 

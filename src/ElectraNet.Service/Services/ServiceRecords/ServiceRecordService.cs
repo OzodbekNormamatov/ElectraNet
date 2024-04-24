@@ -29,10 +29,10 @@ public class ServiceRecordService
         if (!validator.IsValid)
             throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
 
-        if (createModel.CableId is not null)
+        if (createModel.CableId is not 0)
             await cableService.GetByIdAsync(Convert.ToInt64(createModel.CableId));
 
-        if (createModel.TransformerPointId is not null)
+        if (createModel.TransformerPointId is not 0)
             await transformerPointService.GetByIdAsync(Convert.ToInt64(createModel.TransformerPointId));
 
         var existEmployee = await employeeService.GetByIdAsync(createModel.MasterId);
@@ -56,10 +56,10 @@ public class ServiceRecordService
         var existServiceRecord = await unitOfWork.ServiceRecords.SelectAsync(s => s.Id == id && !s.IsDeleted)
             ?? throw new NotFoundException("ServiceRecord is not found");
 
-        if (updateModel.CableId is not null)
+        if (updateModel.CableId is not 0)
             await cableService.GetByIdAsync(Convert.ToInt64(updateModel.CableId));
 
-        if (updateModel.TransformerPointId is not null)
+        if (updateModel.TransformerPointId is not 0)
             await transformerPointService.GetByIdAsync(Convert.ToInt64(updateModel.TransformerPointId));
 
         var existEmployee = await employeeService.GetByIdAsync(updateModel.MasterId);
@@ -98,6 +98,10 @@ public class ServiceRecordService
         var serviceRecords = unitOfWork.ServiceRecords
             .SelectAsQueryable(expression: s => !s.IsDeleted, includes: ["Cable", "TransformerPoint", "Employee"], isTracked: false)
             .OrderBy(filter);
+
+        if (!string.IsNullOrEmpty(search))
+            serviceRecords = serviceRecords.Where(role =>
+                role.Description.ToLower().Contains(search.ToLower()));
 
         var paginateServiceRecords = await serviceRecords.ToPaginateAsQueryable(@params).ToListAsync();
         return mapper.Map<IEnumerable<ServiceRecordViewModel>>(paginateServiceRecords);

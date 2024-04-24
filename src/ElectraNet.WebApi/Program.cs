@@ -28,22 +28,25 @@ builder.Services.AddControllersWithViews()
 builder.Services.AddExceptionHandlers();
 builder.Services.AddProblemDetails();
 
+builder.Services.ConfigureSwagger();
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddJwtService(builder.Configuration);
 
+builder.Services.AddValidators();
 builder.Services.AddServices();
 
 var app = builder.Build();
 app.InjectEnvironmentItems();
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var dbContext = services.GetRequiredService<AppDbContext>();
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+//    var dbContext = services.GetRequiredService<AppDbContext>();
 
-    dbContext.Database.Migrate();
-}
+//    dbContext.Database.Migrate();
+//}
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

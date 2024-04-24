@@ -10,5 +10,4 @@ public class UserCreateModel
     public string Email { get; set; }
     public string Number { get; set; }
     public long RoledId { get; set; }
-    public UserRole UserRole { get; set; }
 }

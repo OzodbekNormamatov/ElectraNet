@@ -9,14 +9,25 @@ using ElectraNet.Service.Configurations;
 using ElectraNet.DataAccess.UnitOfWorks;
 using ElectraNet.Service.Services.UserRoles;
 using Microsoft.Extensions.Caching.Memory;
+using ElectraNet.WebApi.Validator.Users;
+using FluentValidation;
 
 namespace ElectraNet.Service.Services.Users;
 
-public class UserService(IMapper mapper, IUnitOfWork unitOfWork, IUserRoleService userRoleService, IMemoryCache memoryCache) : IUserService
+public class UserService(IMapper mapper, 
+    IUnitOfWork unitOfWork,
+    IUserRoleService userRoleService, 
+    IMemoryCache memoryCache,
+    UserCreateModelValidator userCreateValidator,
+    UserUpdateModelValidator userUpdateValidator) : IUserService
 {
     private readonly string cacheKey = "EmailCodeKey";
     public async ValueTask<UserViewModel> CreateAsync(UserCreateModel createModel)
     {
+        var validator = await userCreateValidator.ValidateAsync(createModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existUserRole = await userRoleService.GetByIdAsync(createModel.RoledId);
 
         var existUser = await unitOfWork.Users.SelectAsync(u => u.Number == createModel.Number);
@@ -31,6 +42,7 @@ public class UserService(IMapper mapper, IUnitOfWork unitOfWork, IUserRoleServic
 
         var user = mapper.Map<User>(createModel);
         user.Create();
+        user.Password = PasswordHasher.Hash(createModel.Password);
         var createdUserRole = await unitOfWork.Users.InsertAsync(user);
         await unitOfWork.SaveAsync();
 
@@ -40,6 +52,10 @@ public class UserService(IMapper mapper, IUnitOfWork unitOfWork, IUserRoleServic
     }
     public async ValueTask<UserViewModel> UpdateAsync(long id, UserUpdateModel updateModel, bool IsUserDeleted = false)
     {
+        var validator = await userUpdateValidator.ValidateAsync(updateModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existUser = new User();
         if(!IsUserDeleted)
             existUser = await unitOfWork.Users.SelectAsync(p => p.Id == id && !p.IsDeleted)
@@ -51,7 +67,7 @@ public class UserService(IMapper mapper, IUnitOfWork unitOfWork, IUserRoleServic
         if (alreadyExistPermission is not null)
             throw new AlreadyExistException($"This user is already exists");
 
-        mapper.Map(existUser, updateModel);
+        mapper.Map(updateModel , existUser);
         existUser.Update();
         var updateUser = await unitOfWork.Users.UpdateAsync(existUser);
         await unitOfWork.SaveAsync();
@@ -79,11 +95,12 @@ public class UserService(IMapper mapper, IUnitOfWork unitOfWork, IUserRoleServic
 
         if (!string.IsNullOrEmpty(search))
             users = users.Where(p =>
-             p.FirstName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-             p.LastName.Contains(search, StringComparison.OrdinalIgnoreCase));
+             p.FirstName.ToLower().Contains(search.ToLower()) ||
+             p.LastName.ToLower().Contains(search.ToLower()));
 
         return mapper.Map<IEnumerable<UserViewModel>>(await users.ToPaginateAsQueryable(@params).ToListAsync());
     }
+
     public async ValueTask<UserViewModel> GetByIdAsync(long id)
     {
         var existUser = await unitOfWork.Users.SelectAsync(expression: user => user.Id == id && !user.IsDeleted , includes: ["UserRole"])
@@ -92,15 +109,21 @@ public class UserService(IMapper mapper, IUnitOfWork unitOfWork, IUserRoleServic
         return mapper.Map<UserViewModel>(existUser);
     }
 
-    public async ValueTask<(UserViewModel user, string token)> LoginAsync(string phone, string password)
+    public async ValueTask<LoginViewModel> LoginAsync(string phone, string password)
     {
         var existUser = await unitOfWork.Users.SelectAsync(
            expression: u =>
-               u.Number == phone && PasswordHasher.Verify(password, u.Password) && !u.IsDeleted,
+               u.Number == phone && !u.IsDeleted,
            includes: ["UserRole"])
            ?? throw new ArgumentIsNotValidException($"Phone or password is not valid");
 
-        return (user: mapper.Map<UserViewModel>(existUser), token: AuthHelper.GenerateToken(existUser));
+        if (!PasswordHasher.Verify(password, existUser.Password))
+            throw new ArgumentIsNotValidException($"Phone or password is not valid");
+
+        var token = AuthHelper.GenerateToken(existUser);
+        var mappedUser = mapper.Map<UserViewModel>(existUser);
+
+        return new LoginViewModel() { User = mappedUser, Token = token };
     }
 
     public async ValueTask<bool> ResetPasswordAsync(string phone, string newPassword)

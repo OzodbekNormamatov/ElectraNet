@@ -14,6 +14,7 @@ namespace ElectraNet.Service.Services.Transformers;
 public class TransformerService(
     IMapper mapper,
     IUnitOfWork unitOfWork,
+
     ITransformerPointService transformerService
     TransformerCreateModelValidator transformerCreateValidator,
     TransformerUpdateModelValidator transformerUpdateValidator) : ITransformerService
@@ -26,18 +27,25 @@ public class TransformerService(
 
         var existTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Description.ToLower() == createModel.Description.ToLower());
 
+    ITransformerPointService transFormerPointService) : ITransformerService
+{
+    public async ValueTask<TransformerViewModel> CreateAsync(TransformerCreateModel createModel)
+    {
+        var existTransformerPoint = await transFormerPointService.GetByIdAsync(createModel.TransformerPointId);
+
+        var existTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Description.ToLower() == createModel.Description.ToLower() && !t.IsDeleted);
+
         if (existTransformer is not null)
             throw new AlreadyExistException("Transformer is already exist");
-
-        if (createModel.TransformerPointId is not null)
-            await transformerService.GetByIdAsync(Convert.ToInt64(createModel.TransformerPointId));
 
         var transformer = mapper.Map<Transformer>(createModel);
         transformer.Create();
         var createdTransformer = await unitOfWork.Transformers.InsertAsync(transformer);
         await unitOfWork.SaveAsync();
 
-        return mapper.Map<TransformerViewModel>(createModel);
+        var viewModel = mapper.Map<TransformerViewModel>(createdTransformer);
+        viewModel.TransformerPoint = existTransformerPoint;
+        return viewModel;
     }
 
     public async ValueTask<TransformerViewModel> UpdateAsync(long id, TransformerUpdateModel updateModel)
@@ -46,23 +54,23 @@ public class TransformerService(
         if (!validator.IsValid)
             throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
 
+        var existTransformerPoint = await transFormerPointService.GetByIdAsync(updateModel.TransformerPointId);
+
         var existTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Id == id && !t.IsDeleted)
             ?? throw new NotFoundException($"Transformer is not found with this ID = {id}");
 
-        if (updateModel.TransformerPointId is not null)
-            await transformerService.GetByIdAsync(Convert.ToInt64(updateModel.TransformerPointId));
-
-
-        var alreadyExistTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Description.ToLower() == updateModel.Description.ToLower());
+        var alreadyExistTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Description.ToLower() == updateModel.Description.ToLower() && !t.IsDeleted);
         if (alreadyExistTransformer is not null)
             throw new AlreadyExistException("Transformer is already exist");
 
-        mapper.Map(existTransformer, updateModel);
+        mapper.Map(updateModel, existTransformer);
         existTransformer.Update();
         var upateTransformer = await unitOfWork.Transformers.UpdateAsync(existTransformer);
         await unitOfWork.SaveAsync();
 
-        return mapper.Map<TransformerViewModel>(upateTransformer);
+        var viewModel = mapper.Map<TransformerViewModel>(upateTransformer);
+        viewModel.TransformerPoint = existTransformerPoint;
+        return viewModel;
     }
 
     public async ValueTask<bool> DeleteAsync(long id)
@@ -79,7 +87,7 @@ public class TransformerService(
 
     public async ValueTask<TransformerViewModel> GetByIdAsync(long id)
     {
-        var existTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Id == id && !t.IsDeleted)
+        var existTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Id == id && !t.IsDeleted, ["TransformerPoint"])
            ?? throw new NotFoundException($"Transformer is not found with this ID = {id}");
 
         return mapper.Map<TransformerViewModel>(existTransformer);
@@ -93,9 +101,9 @@ public class TransformerService(
 
         if (!string.IsNullOrEmpty(search))
             transformers = transformers.Where(role =>
-                role.Description.Contains(search, StringComparison.OrdinalIgnoreCase));
+                role.Description.ToLower().Contains(search.ToLower()));
 
-        var paginateTransformer = transformers.ToPaginateAsQueryable(@params).ToListAsync();
-        return await Task.FromResult(mapper.Map<IEnumerable<TransformerViewModel>>(transformers));
+        var paginateTransformer = await transformers.ToPaginateAsQueryable(@params).ToListAsync();
+        return mapper.Map<IEnumerable<TransformerViewModel>>(paginateTransformer);
     }
 }

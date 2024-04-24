@@ -1,32 +1,32 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ElectraNet.Service.Configurations;
+using ElectraNet.Service.DTOs.Organizations;
+using ElectraNet.Service.Services.Organizations;
 using ElectraNet.WebApi.Models;
-using ElectraNet.Service.Configurations;
-using ElectraNet.Service.DTOs.UserRoles;
-using ElectraNet.Service.Services.UserRoles;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ElectraNet.WebApi.Controllers;
 
-public class UserRolesController(IUserRoleService userRoleService) : BaseController
+public class OrganizationsController(IOrganizationService organizationService) : BaseController
 {
     [HttpPost]
-    public async ValueTask<IActionResult> PostAsync([FromBody] UserRoleCreateModel createModel)
+    public async ValueTask<IActionResult> PostAsync([FromBody] OrganizationCreateModel createModel)
     {
         return Ok(new Response
         {
             StatusCode = 200,
             Message = "Ok",
-            Data = await userRoleService.CreateAsync(createModel)
+            Data = await organizationService.CreateAsync(createModel)
         });
     }
 
     [HttpPut("{id:long}")]
-    public async ValueTask<IActionResult> PutAsync(long id, [FromBody] UserRoleUpdateModel updateModel)
+    public async ValueTask<IActionResult> PutAsync(long id, [FromBody] OrganizationUpdateModel updateModel)
     {
         return Ok(new Response
         {
             StatusCode = 200,
             Message = "Ok",
-            Data = await userRoleService.UpdateAsync(id, updateModel)
+            Data = await organizationService.UpdateAsync(id, updateModel)
         });
     }
 
@@ -37,7 +37,7 @@ public class UserRolesController(IUserRoleService userRoleService) : BaseControl
         {
             StatusCode = 200,
             Message = "Ok",
-            Data = await userRoleService.DeleteAsync(id)
+            Data = await organizationService.DeleteAsync(id)
         });
     }
 
@@ -48,7 +48,7 @@ public class UserRolesController(IUserRoleService userRoleService) : BaseControl
         {
             StatusCode = 200,
             Message = "Ok",
-            Data = await userRoleService.GetByIdAsync(id)
+            Data = await organizationService.GetByIdAsync(id)
         });
     }
 
@@ -56,14 +56,17 @@ public class UserRolesController(IUserRoleService userRoleService) : BaseControl
     public async ValueTask<IActionResult> GetAsync(
         [FromQuery] PaginationParams @params,
         [FromQuery] Filter filter,
-        [FromQuery] string search)
+        [FromQuery] string search = null)
     {
         return Ok(new Response
         {
             StatusCode = 200,
             Message = "Ok",
-            Data = await userRoleService.GetAllAsync(@params, filter, search)
+            Data = await organizationService.GetAllAsync(@params, filter, search)
         });
     }
+
 }
+
+
 
