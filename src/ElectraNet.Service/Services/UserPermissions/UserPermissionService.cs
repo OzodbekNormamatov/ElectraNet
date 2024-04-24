@@ -6,13 +6,22 @@ using ElectraNet.Domain.Enitites.Users;
 using ElectraNet.Service.Configurations;
 using ElectraNet.DataAccess.UnitOfWorks;
 using ElectraNet.Service.DTOs.UserPermissions;
+using ElectraNet.WebApi.Validator.UserPermissions;
 
 namespace ElectraNet.Service.Services.UserPermissions
 {
-    public class UserPermissionService(IMapper mapper, IUnitOfWork unitOfWork) : IUserPermissionService
+    public class UserPermissionService(
+        IMapper mapper, 
+        IUnitOfWork unitOfWork,
+        UserPermissionCreateModelValidator userPermissionCreateValidator,
+        UserPermissionUpdateModelValidator userPermissionUpdateValidator) : IUserPermissionService
     {
         public async ValueTask<UserPermissionViewModel> CreateAsync(UserPermissionCreateModel createModel)
         {
+            var validator = await userPermissionCreateValidator.ValidateAsync(createModel);
+            if (!validator.IsValid)
+                throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
             var existPermission = await unitOfWork.UserPermissions
                 .SelectAsync(p => p.UserId == createModel.UserId && p.PermissionId == createModel.PermissionId);
 
@@ -29,6 +38,10 @@ namespace ElectraNet.Service.Services.UserPermissions
 
         public async ValueTask<UserPermissionViewModel> UpdateAsync(long id, UserPermissionUpdateModel updateModel)
         {
+            var validator = await userPermissionUpdateValidator.ValidateAsync(updateModel);
+            if (!validator.IsValid)
+                throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
             var existPermission = await unitOfWork.UserPermissions.SelectAsync(p => p.Id == id && !p.IsDeleted)
                 ?? throw new NotFoundException($"User permission is not found with this ID = {id}");
 

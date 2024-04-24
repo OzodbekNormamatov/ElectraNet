@@ -7,16 +7,24 @@ using ElectraNet.Service.Configurations;
 using ElectraNet.Service.DTOs.TransformerPoints;
 using ElectraNet.Service.Services.Organizations;
 using ElectraNet.Domain.Enitites.TransformerPoints;
+using ElectraNet.WebApi.Validator.TransformerPoints;
 
 namespace ElectraNet.Service.Services.TransformerPoints;
 
 public class TransformerPointService(
     IMapper mapper,
     IUnitOfWork unitOfWork,
-    IOrganizationService organizationService) : ITransformerPointService
+    IOrganizationService organizationService,
+    TransformerPointCreateModelValidator transformerPointCreateValidator,
+    TransformerPointsUpdateModelValidator transformerPointUpdateValidator
+    ) : ITransformerPointService
 {
     public async ValueTask<TransformerPointViewModel> CreateAsync(TransformerPointCreateModel createModel)
     {
+        var validator = await transformerPointCreateValidator.ValidateAsync(createModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Title.ToLower() == createModel.Title.ToLower());
 
         if (existTransformerPoint is not null)
@@ -35,6 +43,10 @@ public class TransformerPointService(
 
     public async ValueTask<TransformerPointViewModel> UpdateAsync(long id, TransformerPointUpdateModel updateModel)
     {
+        var validator = await transformerPointUpdateValidator.ValidateAsync(updateModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Id == id && !t.IsDeleted)
           ?? throw new NotFoundException($"TransformerPoint is not found with this ID = {id}");
 

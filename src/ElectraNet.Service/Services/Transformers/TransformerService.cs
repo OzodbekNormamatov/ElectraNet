@@ -6,6 +6,7 @@ using ElectraNet.Service.DTOs.Transformers;
 using ElectraNet.Service.Exceptions;
 using ElectraNet.Service.Extensions;
 using ElectraNet.Service.Services.TransformerPoints;
+using ElectraNet.WebApi.Validator.Transformers;
 using Microsoft.EntityFrameworkCore;
 
 namespace ElectraNet.Service.Services.Transformers;
@@ -13,10 +14,16 @@ namespace ElectraNet.Service.Services.Transformers;
 public class TransformerService(
     IMapper mapper,
     IUnitOfWork unitOfWork,
-    ITransformerPointService transformerService) : ITransformerService
+    ITransformerPointService transformerService
+    TransformerCreateModelValidator transformerCreateValidator,
+    TransformerUpdateModelValidator transformerUpdateValidator) : ITransformerService
 {
     public async ValueTask<TransformerViewModel> CreateAsync(TransformerCreateModel createModel)
     {
+        var validator = await transformerCreateValidator.ValidateAsync(createModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Description.ToLower() == createModel.Description.ToLower());
 
         if (existTransformer is not null)
@@ -35,6 +42,10 @@ public class TransformerService(
 
     public async ValueTask<TransformerViewModel> UpdateAsync(long id, TransformerUpdateModel updateModel)
     {
+        var validator = await transformerUpdateValidator.ValidateAsync(updateModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Id == id && !t.IsDeleted)
             ?? throw new NotFoundException($"Transformer is not found with this ID = {id}");
 

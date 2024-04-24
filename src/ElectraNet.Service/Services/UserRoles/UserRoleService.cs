@@ -6,13 +6,22 @@ using ElectraNet.Domain.Enitites.Users;
 using ElectraNet.DataAccess.UnitOfWorks;
 using ElectraNet.Service.Configurations;
 using ElectraNet.Service.DTOs.UserRoles;
+using ElectraNet.WebApi.Validator.UserRolesl;
+using ElectraNet.WebApi.Validator.UserRoles;
 
 namespace ElectraNet.Service.Services.UserRoles;
 
-public class UserRoleService(IMapper mapper, IUnitOfWork unitOfWork) : IUserRoleService
+public class UserRoleService(IMapper mapper, 
+    IUnitOfWork unitOfWork, 
+    UserRoleCreateModelValidator userRoleCreateValidator,
+    UserRoleUpdateModelValidator userRoleUpdateValidator) : IUserRoleService
 {
     public async ValueTask<UserRoleViewModel> CreateAsync(UserRoleCreateModel userRoleCreateModel)
     {
+        var validator = await userRoleCreateValidator.ValidateAsync(userRoleCreateModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existUserRole = await unitOfWork.UserRoles.SelectAsync(u => u.Name.ToLower() == userRoleCreateModel.Name.ToLower());
 
         if (existUserRole is not null)
@@ -28,6 +37,10 @@ public class UserRoleService(IMapper mapper, IUnitOfWork unitOfWork) : IUserRole
 
     public async ValueTask<UserRoleViewModel> UpdateAsync(long id, UserRoleUpdateModel userRoleUpdateModel)
     {
+        var validator = await userRoleUpdateValidator.ValidateAsync(userRoleUpdateModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existUserRole = await unitOfWork.UserRoles.SelectAsync(u => u.Id == id && !u.IsDeleted)
             ?? throw new NotFoundException("UserRole is not found");
 
