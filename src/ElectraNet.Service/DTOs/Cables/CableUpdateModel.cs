@@ -7,5 +7,4 @@ public class CableUpdateModel
     public long Voltage { get; set; }
     public string Description { get; set; }
     public long AssetId { get; set; }
-    public Asset Asset { get; set; }
 }

@@ -16,6 +16,10 @@ using ElectraNet.Domain.Enitites.Transformers;
 using ElectraNet.Service.DTOs.Transformers;
 using ElectraNet.Domain.Enitites.TransformerPoints;
 using ElectraNet.Service.DTOs.TransformerPoints;
+using ElectraNet.Domain.Enitites.Cables;
+using ElectraNet.Service.DTOs.Cables;
+using ElectraNet.Domain.Enitites.Laboratories;
+using ElectraNet.Service.DTOs.Laboratories;
 
 namespace ElectraNet.Service.Mappers;
 
@@ -62,5 +66,13 @@ public class MappingProfile:Profile
         CreateMap<TransformerPoint, TransformerPointCreateModel>().ReverseMap();
         CreateMap<TransformerPoint, TransformerPointUpdateModel>().ReverseMap();
         CreateMap<TransformerPointViewModel, TransformerPoint>().ReverseMap();  
+
+        CreateMap<Cable, CableCreateModel>().ReverseMap();
+        CreateMap<Cable, CableUpdateModel>().ReverseMap();
+        CreateMap<CableViewModel,  Cable>().ReverseMap();
+
+        CreateMap<Laboratory, LaboratoryCreateModel>().ReverseMap();
+        CreateMap<Laboratory, LaboratoryUpdateModel>().ReverseMap();
+        CreateMap<LaboratoryViewModel, Laboratory>().ReverseMap();
     }
 }
