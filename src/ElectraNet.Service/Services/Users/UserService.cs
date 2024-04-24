@@ -153,10 +153,10 @@ public class UserService(IMapper mapper,
 
         var memoryCacheOptions = new MemoryCacheEntryOptions()
              .SetSize(50)
-             .SetAbsoluteExpiration(TimeSpan.FromSeconds(60))
-             .SetSlidingExpiration(TimeSpan.FromSeconds(30))
+             .SetAbsoluteExpiration(TimeSpan.FromSeconds(100))
+             .SetSlidingExpiration(TimeSpan.FromSeconds(50))
              .SetPriority(CacheItemPriority.Normal);
-
+         
         memoryCache.Set(cacheKey, code.ToString(), memoryCacheOptions);
 
         return true;
