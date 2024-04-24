@@ -61,7 +61,7 @@ public class CableService(IMapper mapper, IUnitOfWork unitOfWork, IAssetService 
 
         if (!string.IsNullOrEmpty(search))
             cables = cables.Where(role =>
-                role.Description.Contains(search, StringComparison.OrdinalIgnoreCase));
+                role.Description.ToLower().Contains(search.ToLower()));
 
         var paginateCables = await cables.ToPaginateAsQueryable(@params).ToListAsync();
         return mapper.Map<IEnumerable<CableViewModel>>(paginateCables);
