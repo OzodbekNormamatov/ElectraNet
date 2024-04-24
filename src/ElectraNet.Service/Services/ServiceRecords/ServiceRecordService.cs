@@ -9,6 +9,8 @@ using ElectraNet.Service.Services.Employees;
 using ElectraNet.Service.DTOs.ServiceRecords;
 using ElectraNet.Domain.Enitites.ServiceRecords;
 using ElectraNet.Service.Services.TransformerPoints;
+using ElectraNet.WebApi.Validator.Employees;
+using ElectraNet.WebApi.Validator.ServiceRecords;
 
 namespace ElectraNet.Service.Services.ServiceRecords;
 
@@ -17,10 +19,16 @@ public class ServiceRecordService
     IUnitOfWork unitOfWork,
     ICableService cableService,
     ITransformerPointService transformerPointService,
-    IEmployeeService employeeService) : IServiceRecordService
+    IEmployeeService employeeService,
+    ServiceRecordCreateModelValidator serviceRecordCreateValidator ,
+    ServiceRecordUpdateValidator serviceRecordUpdateValidator) : IServiceRecordService
 {
     public async ValueTask<ServiceRecordViewModel> CreateAsync(ServiceRecordCreateModel createModel)
     {
+        var validator = await serviceRecordCreateValidator.ValidateAsync(createModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         if (createModel.CableId is not 0)
             await cableService.GetByIdAsync(Convert.ToInt64(createModel.CableId));
 
@@ -41,6 +49,10 @@ public class ServiceRecordService
 
     public async ValueTask<ServiceRecordViewModel> UpdateAsync(long id, ServiceRecordUpdateModel updateModel)
     {
+        var validator = await serviceRecordUpdateValidator.ValidateAsync(updateModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existServiceRecord = await unitOfWork.ServiceRecords.SelectAsync(s => s.Id == id && !s.IsDeleted)
             ?? throw new NotFoundException("ServiceRecord is not found");
 

@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace ElectraNet.WebApi.Validator.TransformerPoints;
 
-public class TransformerPointsCreateModelValidator : AbstractValidator<TransformerPointCreateModel>
+public class TransformerPointCreateModelValidator : AbstractValidator<TransformerPointCreateModel>
 {
-    public TransformerPointsCreateModelValidator()
+    public TransformerPointCreateModelValidator()
     {
         RuleFor(transformerPoint => transformerPoint.Title)
             .NotNull()
