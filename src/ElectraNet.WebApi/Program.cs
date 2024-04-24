@@ -34,6 +34,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddJwtService(builder.Configuration);
 
+builder.Services.AddValidators();
 builder.Services.AddServices();
 
 var app = builder.Build();

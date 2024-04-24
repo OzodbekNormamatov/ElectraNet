@@ -14,6 +14,7 @@ using ElectraNet.Service.Services.UserPermissions;
 using ElectraNet.Service.Services.UserRoles;
 using ElectraNet.Service.Services.Users;
 using ElectraNet.WebApi.Middlewares;
+using ElectraNet.WebApi.Validator.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -47,6 +48,12 @@ public static class ServicesCollection
         services.AddExceptionHandler<ArgumentIsNotValidExceptionHandler>();
         services.AddExceptionHandler<CustomExceptionHandler>();
         services.AddExceptionHandler<InternalServerExceptionHandler>();
+    }
+
+    public static void AddValidators(this IServiceCollection services)
+    {
+        services.AddTransient<UserCreateModelValidator>();
+        services.AddTransient<UserUpdateModelValidator>();
     }
 
     public static void InjectEnvironmentItems(this WebApplication app)

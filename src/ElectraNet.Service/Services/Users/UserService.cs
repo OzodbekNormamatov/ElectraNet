@@ -9,14 +9,25 @@ using ElectraNet.Service.Configurations;
 using ElectraNet.DataAccess.UnitOfWorks;
 using ElectraNet.Service.Services.UserRoles;
 using Microsoft.Extensions.Caching.Memory;
+using ElectraNet.WebApi.Validator.Users;
+using FluentValidation;
 
 namespace ElectraNet.Service.Services.Users;
 
-public class UserService(IMapper mapper, IUnitOfWork unitOfWork, IUserRoleService userRoleService, IMemoryCache memoryCache) : IUserService
+public class UserService(IMapper mapper, 
+    IUnitOfWork unitOfWork,
+    IUserRoleService userRoleService, 
+    IMemoryCache memoryCache,
+    UserCreateModelValidator userCreateValidator,
+    UserUpdateModelValidator userUpdateValidator) : IUserService
 {
     private readonly string cacheKey = "EmailCodeKey";
     public async ValueTask<UserViewModel> CreateAsync(UserCreateModel createModel)
     {
+        var validator = await userCreateValidator.ValidateAsync(createModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existUserRole = await userRoleService.GetByIdAsync(createModel.RoledId);
 
         var existUser = await unitOfWork.Users.SelectAsync(u => u.Number == createModel.Number);
@@ -41,6 +52,10 @@ public class UserService(IMapper mapper, IUnitOfWork unitOfWork, IUserRoleServic
     }
     public async ValueTask<UserViewModel> UpdateAsync(long id, UserUpdateModel updateModel, bool IsUserDeleted = false)
     {
+        var validator = await userUpdateValidator.ValidateAsync(updateModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existUser = new User();
         if(!IsUserDeleted)
             existUser = await unitOfWork.Users.SelectAsync(p => p.Id == id && !p.IsDeleted)
