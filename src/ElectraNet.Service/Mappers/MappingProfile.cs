@@ -20,6 +20,8 @@ using ElectraNet.Domain.Enitites.Cables;
 using ElectraNet.Service.DTOs.Cables;
 using ElectraNet.Domain.Enitites.Laboratories;
 using ElectraNet.Service.DTOs.Laboratories;
+using ElectraNet.Domain.Enitites.ServiceRecords;
+using ElectraNet.Service.DTOs.ServiceRecords;
 
 namespace ElectraNet.Service.Mappers;
 
@@ -74,5 +76,9 @@ public class MappingProfile:Profile
         CreateMap<Laboratory, LaboratoryCreateModel>().ReverseMap();
         CreateMap<Laboratory, LaboratoryUpdateModel>().ReverseMap();
         CreateMap<LaboratoryViewModel, Laboratory>().ReverseMap();
+
+        CreateMap<ServiceRecord, ServiceRecordCreateModel>().ReverseMap();
+        CreateMap<ServiceRecord, ServiceRecordUpdateModel>().ReverseMap();
+        CreateMap<ServiceRecordViewModel, ServiceRecord>().ReverseMap();
     }
 }
