@@ -8,6 +8,7 @@ using ElectraNet.Service.Extensions;
 using ElectraNet.Service.Services.Cables;
 using ElectraNet.Service.Services.Employees;
 using ElectraNet.Service.Services.TransformerPoints;
+using ElectraNet.Service.Validators.Laboratories;
 using Microsoft.EntityFrameworkCore;
 
 namespace ElectraNet.Service.Services.Laboratories;
@@ -17,14 +18,20 @@ public class LaboratoryService
     IUnitOfWork unitOfWork,
     ICableService cableService,
     ITransformerPointService transformerPointService,
-    IEmployeeService employeeService) : ILaboratoryService
+    IEmployeeService employeeService,
+    LaboratoryCreateModelValidator laboratoryCreateModelValidator,
+    LaboratoryUpdateModelValidator laboratoryUpdateModelValidator) : ILaboratoryService
 {
     public async ValueTask<LaboratoryViewModel> CreateAsync(LaboratoryCreateModel createModel)
     {
-        if (createModel.CableId is not null)
+        var validator = await laboratoryCreateModelValidator.ValidateAsync(createModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
+        if (createModel.CableId is not 0)
             await cableService.GetByIdAsync(Convert.ToInt64(createModel.CableId));
 
-        if (createModel.TransformerPointId is not null)
+        if (createModel.TransformerPointId is not 0)
             await transformerPointService.GetByIdAsync(Convert.ToInt64(createModel.TransformerPointId));
 
         var existEmployee = await employeeService.GetByIdAsync(createModel.MasterId);
@@ -41,13 +48,17 @@ public class LaboratoryService
 
     public async ValueTask<LaboratoryViewModel> UpdateAsync(long id, LaboratoryUpdateModel updateModel)
     {
+        var validator = await laboratoryUpdateModelValidator.ValidateAsync(updateModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existLaboratory = await unitOfWork.Laboratories.SelectAsync(l => l.Id == id && !l.IsDeleted)
             ?? throw new NotFoundException("Laboratory is not found");
 
-        if (updateModel.CableId is not null)
+        if (updateModel.CableId is not 0)
             await cableService.GetByIdAsync(Convert.ToInt64(updateModel.CableId));
 
-        if (updateModel.TransformerPointId is not null)
+        if (updateModel.TransformerPointId is not 0)
             await transformerPointService.GetByIdAsync(Convert.ToInt64(updateModel.TransformerPointId));
 
         var existEmployee = await employeeService.GetByIdAsync(updateModel.MasterId);

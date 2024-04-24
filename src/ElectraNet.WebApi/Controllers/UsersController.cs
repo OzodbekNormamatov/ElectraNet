@@ -2,12 +2,14 @@
 using ElectraNet.Service.DTOs.Users;
 using ElectraNet.Service.Services.Users;
 using ElectraNet.WebApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ElectraNet.WebApi.Controllers;
 
 public class UsersController(IUserService userService) : BaseController
 {
+    [AllowAnonymous]
     [HttpPost]
     public async ValueTask<IActionResult> PostAsync([FromBody] UserCreateModel createModel)
     {

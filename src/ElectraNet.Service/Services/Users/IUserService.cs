@@ -54,6 +54,7 @@ public interface IUserService
     /// </summary>
     /// <param name="phone">The phone number of the user whose password needs to be reset.</param>
     /// <param name="newPassword">The new password for the user.
+    ValueTask<LoginViewModel> LoginAsync(string phone, string password);
     ValueTask<bool> ResetPasswordAsync(string phone, string newPassword);
 
     /// <summary>

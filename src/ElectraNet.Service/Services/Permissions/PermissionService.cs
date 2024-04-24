@@ -6,13 +6,22 @@ using ElectraNet.Domain.Enitites.Users;
 using ElectraNet.DataAccess.UnitOfWorks;
 using ElectraNet.Service.Configurations;
 using ElectraNet.Service.DTOs.Permissions;
+using ElectraNet.Service.Validators.Permissions;
 
 namespace ElectraNet.Service.Services.Permissions;
 
-public class PermissionService(IMapper mapper, IUnitOfWork unitOfWork) : IPermissionService
+public class PermissionService(
+    IMapper mapper, 
+    IUnitOfWork unitOfWork,
+    PermissionCreateModelValidator permissionCreateModelValidator,
+    PermissionUpdateModelValidator permissionUpdateModelValidator) : IPermissionService
 {
     public async ValueTask<PermissionViewModel> CreateAsync(PermissionCreateModel createModel)
     {
+        var validator = await permissionCreateModelValidator.ValidateAsync(createModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existPermission = await unitOfWork.Permissions.SelectAsync(p =>
             p.Method.ToLower() == createModel.Method.ToLower() &&
             p.Controller.ToLower() == createModel.Controller.ToLower());
@@ -21,8 +30,8 @@ public class PermissionService(IMapper mapper, IUnitOfWork unitOfWork) : IPermis
             throw new AlreadyExistException($"This permission is already exists | Method = {createModel.Method} Controller = {createModel.Controller}");
 
         var permission = mapper.Map<Permission>(createModel);
-        existPermission.Create();
-        var createdPermission = await unitOfWork.Permissions.InsertAsync(existPermission);
+        permission.Create();
+        var createdPermission = await unitOfWork.Permissions.InsertAsync(permission);
         await unitOfWork.SaveAsync();
 
         return mapper.Map<PermissionViewModel>(createdPermission);
@@ -30,6 +39,10 @@ public class PermissionService(IMapper mapper, IUnitOfWork unitOfWork) : IPermis
 
     public async ValueTask<PermissionViewModel> UpdateAsync(long id, PermissionUpdateModel updateModel)
     {
+        var validator = await permissionUpdateModelValidator.ValidateAsync(updateModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existPermission = await unitOfWork.Permissions.SelectAsync(p => p.Id == id)
             ?? throw new NotFoundException($"Permission is not found with this ID = {id}");
 
@@ -73,10 +86,10 @@ public class PermissionService(IMapper mapper, IUnitOfWork unitOfWork) : IPermis
 
         if (!string.IsNullOrEmpty(search))
             permissions = permissions.Where(p =>
-             p.Method.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-             p.Controller.Contains(search, StringComparison.OrdinalIgnoreCase));
+             p.Method.ToLower().Contains(search.ToLower()) ||
+             p.Controller.ToLower().Contains(search.ToLower()));
 
-        var paginatePermission = permissions.ToPaginateAsQueryable(@params).ToListAsync();
-        return mapper.Map<IEnumerable<PermissionViewModel>>(await permissions.ToPaginateAsQueryable(@params).ToListAsync());
+        var paginatePermission = await permissions.ToPaginateAsQueryable(@params).ToListAsync();
+        return mapper.Map<IEnumerable<PermissionViewModel>>(paginatePermission);
     }
 }

@@ -18,7 +18,8 @@ public class TransformerPoint : Auditable
     /// <summary>
     /// Represents the identifier of the organization associated with an entity.
     /// </summary>
-    public long? OrganizationId { get; set; }
+
+    public long OrganizationId { get; set; }
 
     /// <summary>
     /// Represents the organization associated with an entity.

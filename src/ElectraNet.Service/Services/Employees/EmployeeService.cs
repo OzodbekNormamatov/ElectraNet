@@ -9,6 +9,7 @@ using ElectraNet.Service.DTOs.Employees;
 using ElectraNet.Domain.Enitites.Employees;
 using ElectraNet.Service.Services.Positions;
 using ElectraNet.Service.Services.Organizations;
+using ElectraNet.WebApi.Validator.Employees;
 
 namespace ElectraNet.Service.Services.Employees;
 
@@ -17,10 +18,16 @@ public class EmployeeService
     IUnitOfWork unitOfWork,
     IUserService userService,
     IPositionService positionService,
-    IOrganizationService organizationService) : IEmployeeService
+    IOrganizationService organizationService,
+    EmployeeCreateModelValidator employeeCreateModelValidator, 
+    EmployeeUpdateModelValidator employeeUpdateModelValidator) : IEmployeeService
 {
     public async ValueTask<EmployeeViewModel> CreateAsync(EmployeeCreateModel createModel)
     {
+        var validator = await employeeCreateModelValidator.ValidateAsync(createModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existUser = await userService.GetByIdAsync(createModel.UserId);
         var existPosition = await positionService.GetByIdAsync(createModel.PositionId);
         var existOrganization = await organizationService.GetByIdAsync(createModel.OrganizationId);
@@ -40,6 +47,10 @@ public class EmployeeService
 
     public async ValueTask<EmployeeViewModel> UpdateAsync(long id, EmployeeUpdateModel updateModel)
     {
+        var validator = await employeeUpdateModelValidator.ValidateAsync(updateModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existEmployee = await unitOfWork.Employees.SelectAsync(e => e.Id == id && !e.IsDeleted)
             ?? throw new NotFoundException("Employee is not found");
 
@@ -47,7 +58,7 @@ public class EmployeeService
         var existPosition = await positionService.GetByIdAsync(updateModel.PositionId);
         var existOrganization = await organizationService.GetByIdAsync(updateModel.OrganizationId);
 
-        mapper.Map(existEmployee, updateModel);
+        mapper.Map(updateModel, existEmployee);
         existEmployee.Update();
         var updateEmployee = await unitOfWork.Employees.UpdateAsync(existEmployee);
         await unitOfWork.SaveAsync();

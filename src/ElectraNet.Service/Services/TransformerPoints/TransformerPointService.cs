@@ -1,60 +1,75 @@
 ﻿using AutoMapper;
-using ElectraNet.Service.Exceptions;
-using ElectraNet.Service.Extensions;
-using Microsoft.EntityFrameworkCore;
 using ElectraNet.DataAccess.UnitOfWorks;
+using ElectraNet.Domain.Enitites.TransformerPoints;
 using ElectraNet.Service.Configurations;
 using ElectraNet.Service.DTOs.TransformerPoints;
+using ElectraNet.Service.Exceptions;
+using ElectraNet.Service.Extensions;
 using ElectraNet.Service.Services.Organizations;
 using ElectraNet.Domain.Enitites.TransformerPoints;
+using ElectraNet.WebApi.Validator.TransformerPoints;
+using Microsoft.EntityFrameworkCore;
 
 namespace ElectraNet.Service.Services.TransformerPoints;
 
 public class TransformerPointService(
     IMapper mapper,
     IUnitOfWork unitOfWork,
-    IOrganizationService organizationService) : ITransformerPointService
+    IOrganizationService organizationService,
+    TransformerPointCreateModelValidator transformerPointCreateValidator,
+    TransformerPointsUpdateModelValidator transformerPointUpdateValidator
+    ) : ITransformerPointService
 {
     public async ValueTask<TransformerPointViewModel> CreateAsync(TransformerPointCreateModel createModel)
     {
-        var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Title.ToLower() == createModel.Title.ToLower());
+        var validator = await transformerPointCreateValidator.ValidateAsync(createModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
 
+        var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Title.ToLower() == createModel.Title.ToLower());
+        var existOrganization = await organizationService.GetByIdAsync(createModel.OrganizationId);
+
+        var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Title.ToLower() == createModel.Title.ToLower() && !t.IsDeleted);
         if (existTransformerPoint is not null)
             throw new AlreadyExistException("TransformerPoint is already exist");
-
-        if (createModel.OrganizationId is not null)
-            await organizationService.GetByIdAsync(Convert.ToInt64(createModel.OrganizationId));
 
         var transformer = mapper.Map<TransformerPoint>(createModel);
         transformer.Create();
         var createdTransformerPoint = await unitOfWork.TransformerPoints.InsertAsync(transformer);
         await unitOfWork.SaveAsync();
 
-        return mapper.Map<TransformerPointViewModel>(createModel);
+        var viewModel = mapper.Map<TransformerPointViewModel>(createdTransformerPoint);
+        viewModel.Organization = existOrganization;
+        return viewModel;
     }
 
     public async ValueTask<TransformerPointViewModel> UpdateAsync(long id, TransformerPointUpdateModel updateModel)
     {
+        var validator = await transformerPointUpdateValidator.ValidateAsync(updateModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
+        var existOrganization = await organizationService.GetByIdAsync(updateModel.OrganizationId);
+
         var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Id == id && !t.IsDeleted)
           ?? throw new NotFoundException($"TransformerPoint is not found with this ID = {id}");
 
-        if (updateModel.OrganizationId is not null)
-            await organizationService.GetByIdAsync(Convert.ToInt64(updateModel.OrganizationId));
-
-        var alreadyExistTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Title.ToLower() == updateModel.Title.ToLower());
+        var alreadyExistTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Title.ToLower() == updateModel.Title.ToLower() && !t.IsDeleted);
         if (alreadyExistTransformerPoint is not null)
             throw new AlreadyExistException("TransformerPoint is already exist");
 
-        mapper.Map(existTransformerPoint, updateModel);
+        mapper.Map(updateModel, existTransformerPoint);
         existTransformerPoint.Update();
         var updateTransformerPoint = await unitOfWork.TransformerPoints.UpdateAsync(existTransformerPoint);
         await unitOfWork.SaveAsync();
 
-        return mapper.Map<TransformerPointViewModel>(updateTransformerPoint);
+        var viewModel = mapper.Map<TransformerPointViewModel>(updateTransformerPoint);
+        viewModel.Organization = existOrganization;
+        return viewModel;
     }
     public async ValueTask<bool> DeleteAsync(long id)
     {
-        var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Id == id)
+        var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Id == id && !t.IsDeleted)
            ?? throw new NotFoundException($"TransformerPoint is not found with this ID = {id}");
 
         existTransformerPoint.Delete();
@@ -66,7 +81,7 @@ public class TransformerPointService(
 
     public async ValueTask<TransformerPointViewModel> GetByIdAsync(long id)
     {
-        var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Id == id && !t.IsDeleted)
+        var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Id == id && !t.IsDeleted , ["Organization"])
             ?? throw new NotFoundException($"TransformerPoint is not found with this ID = {id}");
 
         return mapper.Map<TransformerPointViewModel>(existTransformerPoint);
@@ -80,10 +95,10 @@ public class TransformerPointService(
 
         if (!string.IsNullOrEmpty(search))
             transformerPoints = transformerPoints.Where(role =>
-                role.Title.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                role.Address.Contains(search, StringComparison.OrdinalIgnoreCase));
+                role.Title.ToLower().Contains(search.ToLower()) ||
+                role.Address.ToLower().Contains(search.ToLower()));
 
-        var paginateTransformerPoint = transformerPoints.ToPaginateAsQueryable(@params).ToListAsync();
-        return await Task.FromResult(mapper.Map<IEnumerable<TransformerPointViewModel>>(transformerPoints));
+        var paginateTransformerPoint = await transformerPoints.ToPaginateAsQueryable(@params).ToListAsync();
+        return mapper.Map<IEnumerable<TransformerPointViewModel>>(transformerPoints);
     }
 }

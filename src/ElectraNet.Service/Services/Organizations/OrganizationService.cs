@@ -6,22 +6,31 @@ using ElectraNet.DataAccess.UnitOfWorks;
 using ElectraNet.Service.Configurations;
 using ElectraNet.Service.DTOs.Organizations;
 using ElectraNet.Domain.Enitites.Organizations;
+using ElectraNet.WebApi.Validator.Organizations;
 
 namespace ElectraNet.Service.Services.Organizations;
 
-public class OrganizationService(IMapper mapper, IUnitOfWork unitOfWork) : IOrganizationService
+public class OrganizationService(
+    IMapper mapper, 
+    IUnitOfWork unitOfWork,
+    OrganizationCreateModelValidator organizationCreateModelValidator,
+    OrganizationUpdateModelValidator organizationUpdateModelValidator) : IOrganizationService
 {
     public async ValueTask<OrganizationViewModel> CreateAsync(OrganizationCreateModel createModel)
     {
+        var validator = await organizationCreateModelValidator.ValidateAsync(createModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existOrganization = await unitOfWork.Organizations.SelectAsync(p =>
             p.Name.ToLower() == createModel.Name.ToLower() &&
-        p.Address.ToLower() == createModel.Address.ToLower());
+        p.Address.ToLower() == createModel.Address.ToLower() && !p.IsDeleted);
 
         if (existOrganization is not null)
             throw new AlreadyExistException($"This organization is already exists | OrganizationName = {createModel.Name} Address Name = {createModel.Address}");
 
         var organization = mapper.Map<Organization>(createModel);
-        existOrganization.Create();
+        organization.Create();
         var createdOrganization = await unitOfWork.Organizations.InsertAsync(organization);
         await unitOfWork.SaveAsync();
 
@@ -29,16 +38,20 @@ public class OrganizationService(IMapper mapper, IUnitOfWork unitOfWork) : IOrga
     }
     public async ValueTask<OrganizationViewModel> UpdateAsync(long id, OrganizationUpdateModel updateModel)
     {
+        var validator = await organizationUpdateModelValidator.ValidateAsync(updateModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existOrganization = await unitOfWork.Organizations.SelectAsync(o => o.Id == id && !o.IsDeleted)
             ?? throw new NotFoundException($"Organization is not found with this ID = {id}");
 
         var alreadyExistOrganization = await unitOfWork.Organizations.SelectAsync(p =>
              p.Name.ToLower() == updateModel.Name.ToLower() &&
-             p.Address.ToLower() == updateModel.Address.ToLower());
+             p.Address.ToLower() == updateModel.Address.ToLower() && !p.IsDeleted);
         if (alreadyExistOrganization is not null)
             throw new AlreadyExistException($"This organization is already exists | Name = {updateModel.Name} Address Name = {updateModel.Address}");
 
-        mapper.Map(existOrganization, updateModel);
+        mapper.Map(updateModel, existOrganization);
         existOrganization.Update();
         var updateOrganization = await unitOfWork.Organizations.UpdateAsync(existOrganization);
         await unitOfWork.SaveAsync();
@@ -64,11 +77,11 @@ public class OrganizationService(IMapper mapper, IUnitOfWork unitOfWork) : IOrga
 
         if (!string.IsNullOrEmpty(search))
             organizations = organizations.Where(p =>
-             p.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-             p.Address.Contains(search, StringComparison.OrdinalIgnoreCase));
+             p.Name.ToLower().Contains(search.ToLower()) ||
+             p.Address.ToLower().Contains(search.ToLower()));
 
         var paginateOrganizations = await organizations.ToPaginateAsQueryable(@params).ToListAsync();
-        return mapper.Map<IEnumerable<OrganizationViewModel>>(await organizations.ToPaginateAsQueryable(@params).ToListAsync());
+        return mapper.Map<IEnumerable<OrganizationViewModel>>(paginateOrganizations);
     }
 
     public async ValueTask<OrganizationViewModel> GetByIdAsync(long id)

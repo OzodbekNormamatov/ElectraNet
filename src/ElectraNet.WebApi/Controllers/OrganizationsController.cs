@@ -4,7 +4,7 @@ using ElectraNet.Service.Services.Organizations;
 using ElectraNet.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ElectraNet.WebApi.Controllers.Organizations;
+namespace ElectraNet.WebApi.Controllers;
 
 public class OrganizationsController(IOrganizationService organizationService) : BaseController
 {
