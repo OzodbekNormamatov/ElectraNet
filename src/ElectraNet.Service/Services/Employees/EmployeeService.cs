@@ -47,7 +47,7 @@ public class EmployeeService
         var existPosition = await positionService.GetByIdAsync(updateModel.PositionId);
         var existOrganization = await organizationService.GetByIdAsync(updateModel.OrganizationId);
 
-        mapper.Map(existEmployee, updateModel);
+        mapper.Map(updateModel, existEmployee);
         existEmployee.Update();
         var updateEmployee = await unitOfWork.Employees.UpdateAsync(existEmployee);
         await unitOfWork.SaveAsync();
