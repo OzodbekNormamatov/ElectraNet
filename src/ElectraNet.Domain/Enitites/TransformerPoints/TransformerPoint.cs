@@ -14,12 +14,12 @@ public class TransformerPoint : Auditable
     /// Represents the address associated with an entity.
     /// </summary>
     public string Address { get; set; }
-    public long OrganizationId { get; set; }
 
     /// <summary>
     /// Represents the identifier of the organization associated with an entity.
     /// </summary>
-    public long? OrganizationId { get; set; }
+
+    public long OrganizationId { get; set; }
 
     /// <summary>
     /// Represents the organization associated with an entity.
