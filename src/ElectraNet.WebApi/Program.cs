@@ -28,9 +28,11 @@ builder.Services.AddControllersWithViews()
 builder.Services.AddExceptionHandlers();
 builder.Services.AddProblemDetails();
 
+builder.Services.ConfigureSwagger();
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddJwtService(builder.Configuration);
 
 builder.Services.AddServices();
 

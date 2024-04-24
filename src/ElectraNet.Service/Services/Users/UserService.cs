@@ -31,6 +31,7 @@ public class UserService(IMapper mapper, IUnitOfWork unitOfWork, IUserRoleServic
 
         var user = mapper.Map<User>(createModel);
         user.Create();
+        user.Password = PasswordHasher.Hash(createModel.Password);
         var createdUserRole = await unitOfWork.Users.InsertAsync(user);
         await unitOfWork.SaveAsync();
 
@@ -93,15 +94,21 @@ public class UserService(IMapper mapper, IUnitOfWork unitOfWork, IUserRoleServic
         return mapper.Map<UserViewModel>(existUser);
     }
 
-    public async ValueTask<(UserViewModel user, string token)> LoginAsync(string phone, string password)
+    public async ValueTask<LoginViewModel> LoginAsync(string phone, string password)
     {
         var existUser = await unitOfWork.Users.SelectAsync(
            expression: u =>
-               u.Number == phone && PasswordHasher.Verify(password, u.Password) && !u.IsDeleted,
+               u.Number == phone && !u.IsDeleted,
            includes: ["UserRole"])
            ?? throw new ArgumentIsNotValidException($"Phone or password is not valid");
 
-        return (user: mapper.Map<UserViewModel>(existUser), token: AuthHelper.GenerateToken(existUser));
+        if (!PasswordHasher.Verify(password, existUser.Password))
+            throw new ArgumentIsNotValidException($"Phone or password is not valid");
+
+        var token = AuthHelper.GenerateToken(existUser);
+        var mappedUser = mapper.Map<UserViewModel>(existUser);
+
+        return new LoginViewModel() { User = mappedUser, Token = token };
     }
 
     public async ValueTask<bool> ResetPasswordAsync(string phone, string newPassword)
