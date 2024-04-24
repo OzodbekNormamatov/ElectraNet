@@ -7,13 +7,23 @@ using ElectraNet.Service.Configurations;
 using ElectraNet.Domain.Enitites.Cables;
 using ElectraNet.DataAccess.UnitOfWorks;
 using ElectraNet.Service.Services.Assets;
+using ElectraNet.Service.Validators.Cables;
 
 namespace ElectraNet.Service.Services.Cables;
 
-public class CableService(IMapper mapper, IUnitOfWork unitOfWork, IAssetService assetService) : ICableService
+public class CableService(
+    IMapper mapper, 
+    IUnitOfWork unitOfWork, 
+    IAssetService assetService,
+    CableCreateModelValidator cableCreateModelValidator,
+    CableUpdateModelValidator cableUpdateModelValidator) : ICableService
 {
     public async ValueTask<CableViewModel> CreateAsync(CableCreateModel createModel)
     {
+        var validator = await cableCreateModelValidator.ValidateAsync(createModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existAsset = await assetService.GetByIdAsync(createModel.AssetId);
 
         var cable = mapper.Map<Cable>(createModel);
@@ -28,6 +38,10 @@ public class CableService(IMapper mapper, IUnitOfWork unitOfWork, IAssetService 
 
     public async ValueTask<CableViewModel> UpdateAsync(long Id, CableUpdateModel updateModel)
     {
+        var validator = await cableUpdateModelValidator.ValidateAsync(updateModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existAsset = await assetService.GetByIdAsync(updateModel.AssetId);
 
         var existCable = await unitOfWork.Cables.SelectAsync(cable => cable.Id == Id && !cable.IsDeleted)

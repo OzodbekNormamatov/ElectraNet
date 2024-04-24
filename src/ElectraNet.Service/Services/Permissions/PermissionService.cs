@@ -6,13 +6,22 @@ using ElectraNet.Domain.Enitites.Users;
 using ElectraNet.DataAccess.UnitOfWorks;
 using ElectraNet.Service.Configurations;
 using ElectraNet.Service.DTOs.Permissions;
+using ElectraNet.Service.Validators.Permissions;
 
 namespace ElectraNet.Service.Services.Permissions;
 
-public class PermissionService(IMapper mapper, IUnitOfWork unitOfWork) : IPermissionService
+public class PermissionService(
+    IMapper mapper, 
+    IUnitOfWork unitOfWork,
+    PermissionCreateModelValidator permissionCreateModelValidator,
+    PermissionUpdateModelValidator permissionUpdateModelValidator) : IPermissionService
 {
     public async ValueTask<PermissionViewModel> CreateAsync(PermissionCreateModel createModel)
     {
+        var validator = await permissionCreateModelValidator.ValidateAsync(createModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existPermission = await unitOfWork.Permissions.SelectAsync(p =>
             p.Method.ToLower() == createModel.Method.ToLower() &&
             p.Controller.ToLower() == createModel.Controller.ToLower());
@@ -30,6 +39,10 @@ public class PermissionService(IMapper mapper, IUnitOfWork unitOfWork) : IPermis
 
     public async ValueTask<PermissionViewModel> UpdateAsync(long id, PermissionUpdateModel updateModel)
     {
+        var validator = await permissionUpdateModelValidator.ValidateAsync(updateModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existPermission = await unitOfWork.Permissions.SelectAsync(p => p.Id == id)
             ?? throw new NotFoundException($"Permission is not found with this ID = {id}");
 
