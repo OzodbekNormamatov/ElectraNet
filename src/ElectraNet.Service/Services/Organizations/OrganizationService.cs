@@ -6,13 +6,22 @@ using ElectraNet.DataAccess.UnitOfWorks;
 using ElectraNet.Service.Configurations;
 using ElectraNet.Service.DTOs.Organizations;
 using ElectraNet.Domain.Enitites.Organizations;
+using ElectraNet.WebApi.Validator.Organizations;
 
 namespace ElectraNet.Service.Services.Organizations;
 
-public class OrganizationService(IMapper mapper, IUnitOfWork unitOfWork) : IOrganizationService
+public class OrganizationService(
+    IMapper mapper, 
+    IUnitOfWork unitOfWork,
+    OrganizationCreateModelValidator organizationCreateModelValidator,
+    OrganizationUpdateModelValidator organizationUpdateModelValidator) : IOrganizationService
 {
     public async ValueTask<OrganizationViewModel> CreateAsync(OrganizationCreateModel createModel)
     {
+        var validator = await organizationCreateModelValidator.ValidateAsync(createModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existOrganization = await unitOfWork.Organizations.SelectAsync(p =>
             p.Name.ToLower() == createModel.Name.ToLower() &&
         p.Address.ToLower() == createModel.Address.ToLower() && !p.IsDeleted);
@@ -29,6 +38,10 @@ public class OrganizationService(IMapper mapper, IUnitOfWork unitOfWork) : IOrga
     }
     public async ValueTask<OrganizationViewModel> UpdateAsync(long id, OrganizationUpdateModel updateModel)
     {
+        var validator = await organizationUpdateModelValidator.ValidateAsync(updateModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existOrganization = await unitOfWork.Organizations.SelectAsync(o => o.Id == id && !o.IsDeleted)
             ?? throw new NotFoundException($"Organization is not found with this ID = {id}");
 

@@ -8,6 +8,7 @@ using ElectraNet.Service.Extensions;
 using ElectraNet.Service.Services.Cables;
 using ElectraNet.Service.Services.Employees;
 using ElectraNet.Service.Services.TransformerPoints;
+using ElectraNet.Service.Validators.Laboratories;
 using Microsoft.EntityFrameworkCore;
 
 namespace ElectraNet.Service.Services.Laboratories;
@@ -17,10 +18,16 @@ public class LaboratoryService
     IUnitOfWork unitOfWork,
     ICableService cableService,
     ITransformerPointService transformerPointService,
-    IEmployeeService employeeService) : ILaboratoryService
+    IEmployeeService employeeService,
+    LaboratoryCreateModelValidator laboratoryCreateModelValidator,
+    LaboratoryUpdateModelValidator laboratoryUpdateModelValidator) : ILaboratoryService
 {
     public async ValueTask<LaboratoryViewModel> CreateAsync(LaboratoryCreateModel createModel)
     {
+        var validator = await laboratoryCreateModelValidator.ValidateAsync(createModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         if (createModel.CableId is not 0)
             await cableService.GetByIdAsync(Convert.ToInt64(createModel.CableId));
 
@@ -41,6 +48,10 @@ public class LaboratoryService
 
     public async ValueTask<LaboratoryViewModel> UpdateAsync(long id, LaboratoryUpdateModel updateModel)
     {
+        var validator = await laboratoryUpdateModelValidator.ValidateAsync(updateModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existLaboratory = await unitOfWork.Laboratories.SelectAsync(l => l.Id == id && !l.IsDeleted)
             ?? throw new NotFoundException("Laboratory is not found");
 

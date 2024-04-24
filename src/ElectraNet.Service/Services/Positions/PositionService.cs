@@ -6,13 +6,22 @@ using ElectraNet.Service.Configurations;
 using ElectraNet.Service.DTOs.Positions;
 using ElectraNet.DataAccess.UnitOfWorks;
 using ElectraNet.Domain.Enitites.Positions;
+using ElectraNet.Service.Validators.Positions;
 
 namespace ElectraNet.Service.Services.Positions;
 
-public class PositionService(IMapper mapper, IUnitOfWork unitOfWork) : IPositionService
+public class PositionService(
+    IMapper mapper, 
+    IUnitOfWork unitOfWork,
+    PositionCreateModelValidator positionCreateModelValidator,
+    PositionUpdataModelValidator positionUpdateModelValidator) : IPositionService
 {
     public async ValueTask<PositionViewModel> CreateAsync(PositionCreateModel createModel)
     {
+        var validator = await positionCreateModelValidator.ValidateAsync(createModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existPosition = await unitOfWork.Positions.SelectAsync(p => p.Name.ToLower() == createModel.Name.ToLower());
 
         if (existPosition is not null)
@@ -27,6 +36,10 @@ public class PositionService(IMapper mapper, IUnitOfWork unitOfWork) : IPosition
 
     public async ValueTask<PositionViewModel> UpdateAsync(long id, PositionUpdateModel updateModel)
     {
+        var validator = await positionUpdateModelValidator.ValidateAsync(updateModel);
+        if (!validator.IsValid)
+            throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
+
         var existPosition = await unitOfWork.Positions.SelectAsync(p => p.Id == id)
             ?? throw new NotFoundException($"Position is not found with this ID = {id}");
 
