@@ -21,8 +21,8 @@ public class PermissionService(IMapper mapper, IUnitOfWork unitOfWork) : IPermis
             throw new AlreadyExistException($"This permission is already exists | Method = {createModel.Method} Controller = {createModel.Controller}");
 
         var permission = mapper.Map<Permission>(createModel);
-        existPermission.Create();
-        var createdPermission = await unitOfWork.Permissions.InsertAsync(existPermission);
+        permission.Create();
+        var createdPermission = await unitOfWork.Permissions.InsertAsync(permission);
         await unitOfWork.SaveAsync();
 
         return mapper.Map<PermissionViewModel>(createdPermission);
@@ -73,10 +73,10 @@ public class PermissionService(IMapper mapper, IUnitOfWork unitOfWork) : IPermis
 
         if (!string.IsNullOrEmpty(search))
             permissions = permissions.Where(p =>
-             p.Method.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-             p.Controller.Contains(search, StringComparison.OrdinalIgnoreCase));
+             p.Method.ToLower().Contains(search.ToLower()) ||
+             p.Controller.ToLower().Contains(search.ToLower()));
 
-        var paginatePermission = permissions.ToPaginateAsQueryable(@params).ToListAsync();
-        return mapper.Map<IEnumerable<PermissionViewModel>>(await permissions.ToPaginateAsQueryable(@params).ToListAsync());
+        var paginatePermission = await permissions.ToPaginateAsQueryable(@params).ToListAsync();
+        return mapper.Map<IEnumerable<PermissionViewModel>>(paginatePermission);
     }
 }
