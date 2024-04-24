@@ -35,7 +35,7 @@ public class UserRoleService(IMapper mapper, IUnitOfWork unitOfWork) : IUserRole
         if (alreadyExistUserRole is not null)
             throw new AlreadyExistException("UserRole is already exist");
 
-        mapper.Map(existUserRole, userRoleUpdateModel);
+        mapper.Map(userRoleUpdateModel , existUserRole);
         existUserRole.Update();
         var updateUserRole = await unitOfWork.UserRoles.UpdateAsync(existUserRole);
         await unitOfWork.SaveAsync();
@@ -49,7 +49,7 @@ public class UserRoleService(IMapper mapper, IUnitOfWork unitOfWork) : IUserRole
            ?? throw new NotFoundException("UserRole is not found");
 
         existUser.Delete();
-        await unitOfWork.UserRoles.DeleteAsync(existUser);
+        await unitOfWork.UserRoles.DropAsync(existUser);
         await unitOfWork.SaveAsync();
 
         return true;
@@ -60,7 +60,7 @@ public class UserRoleService(IMapper mapper, IUnitOfWork unitOfWork) : IUserRole
         var userRoles = unitOfWork.UserRoles.SelectAsQueryable(isTracked: false).OrderBy(filter);
 
         if (!string.IsNullOrEmpty(search))
-            userRoles = userRoles.Where(role => role.Name.Contains(search, StringComparison.OrdinalIgnoreCase));
+            userRoles = userRoles.Where((role => role.Name.ToLower().Contains(search.ToLower())));
 
         var paginateUserRoles = await userRoles.ToPaginateAsQueryable(@params).ToListAsync();
         return mapper.Map<IEnumerable<UserRoleViewModel>>(paginateUserRoles);

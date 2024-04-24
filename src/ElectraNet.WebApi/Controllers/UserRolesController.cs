@@ -55,13 +55,14 @@ public class UserRolesController(IUserRoleService userRoleService) : BaseControl
     [HttpGet]
     public async ValueTask<IActionResult> GetAsync(
         [FromQuery] PaginationParams @params,
-        [FromQuery] Filter filter)
+        [FromQuery] Filter filter,
+        [FromQuery] string search)
     {
         return Ok(new Response
         {
             StatusCode = 200,
             Message = "Ok",
-            Data = await userRoleService.GetAllAsync(@params, filter)
+            Data = await userRoleService.GetAllAsync(@params, filter, search)
         });
     }
 }
