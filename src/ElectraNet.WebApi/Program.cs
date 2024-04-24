@@ -37,13 +37,13 @@ builder.Services.AddServices();
 var app = builder.Build();
 app.InjectEnvironmentItems();
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var dbContext = services.GetRequiredService<AppDbContext>();
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+//    var dbContext = services.GetRequiredService<AppDbContext>();
 
-    dbContext.Database.Migrate();
-}
+//    dbContext.Database.Migrate();
+//}
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
