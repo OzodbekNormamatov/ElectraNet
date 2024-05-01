@@ -1,7 +1,7 @@
 ﻿using ElectraNet.Service.DTOs.UserRoles;
 using FluentValidation;
 
-namespace ElectraNet.WebApi.Validator.UserRolesl;
+namespace ElectraNet.WebApi.Validator.UserRoles;
 
 public class UserRoleCreateModelValidator : AbstractValidator<UserRoleCreateModel>
 {

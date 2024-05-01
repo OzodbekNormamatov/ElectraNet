@@ -38,5 +38,4 @@ public interface IUserPermissionService
     /// <param name="filter">The filter criteria for selecting user permissions.</param>
     /// <param name="search">The optional search term to filter user permissions.
     ValueTask<IEnumerable<UserPermissionViewModel>> GetAllAsync(PaginationParams @params, Filter filter, string search = null);
-    ValueTask<IEnumerable<UserPermissionViewModel>> GetAllAsync(PaginationParams @params, Filter filter);
 }

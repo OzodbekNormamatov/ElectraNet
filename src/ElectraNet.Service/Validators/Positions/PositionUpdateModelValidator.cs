@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace ElectraNet.Service.Validators.Positions;
 
-public class PositionUpdataModelValidator : AbstractValidator<PositionUpdateModel>
+public class PositionUpdateModelValidator : AbstractValidator<PositionUpdateModel>
 {
-    public PositionUpdataModelValidator()
+    public PositionUpdateModelValidator()
     {
         RuleFor(position => position.Name)
             .NotNull()

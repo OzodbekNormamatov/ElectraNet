@@ -1,5 +1,4 @@
-﻿using ElectraNet.Domain.Enitites.Users;
-using ElectraNet.Service.DTOs.Users;
+﻿using ElectraNet.Service.DTOs.Users;
 using FluentValidation;
 using System.Text.RegularExpressions;
 

@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace ElectraNet.WebApi.Validator.ServiceRecords;
 
-public class ServiceRecordUpdateValidator : AbstractValidator<ServiceRecordUpdateModel>
+public class ServiceRecordUpdateModelValidator : AbstractValidator<ServiceRecordUpdateModel>
 {
-    public ServiceRecordUpdateValidator()
+    public ServiceRecordUpdateModelValidator()
     {
         RuleFor(serviceRecord => serviceRecord.MasterId)
             .NotNull()
