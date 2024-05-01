@@ -20,8 +20,8 @@ public class ServiceRecordService
     ICableService cableService,
     ITransformerPointService transformerPointService,
     IEmployeeService employeeService,
-    ServiceRecordCreateModelValidator serviceRecordCreateValidator ,
-    ServiceRecordUpdateValidator serviceRecordUpdateValidator) : IServiceRecordService
+    ServiceRecordCreateModelValidator serviceRecordCreateValidator,
+    ServiceRecordUpdateModelValidator serviceRecordUpdateValidator) : IServiceRecordService
 {
     public async ValueTask<ServiceRecordViewModel> CreateAsync(ServiceRecordCreateModel createModel)
     {

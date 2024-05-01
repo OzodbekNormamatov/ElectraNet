@@ -4,9 +4,9 @@ using FluentValidation;
 
 namespace ElectraNet.WebApi.Validator.TransformerPoints;
 
-public class TransformerPointsUpdateModelValidator : AbstractValidator<TransformerPointUpdateModel>
+public class TransformerPointUpdateModelValidator : AbstractValidator<TransformerPointUpdateModel>
 {
-    public TransformerPointsUpdateModelValidator()
+    public TransformerPointUpdateModelValidator()
     {
         RuleFor(transformerPoint => transformerPoint.Title)
             .NotNull()

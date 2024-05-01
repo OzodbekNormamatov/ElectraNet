@@ -7,6 +7,7 @@ using ElectraNet.Service.Exceptions;
 using ElectraNet.Service.Extensions;
 using ElectraNet.Service.Services.TransformerPoints;
 using ElectraNet.WebApi.Validator.Transformers;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
 namespace ElectraNet.Service.Services.Transformers;
@@ -14,8 +15,7 @@ namespace ElectraNet.Service.Services.Transformers;
 public class TransformerService(
     IMapper mapper,
     IUnitOfWork unitOfWork,
-
-    ITransformerPointService transformerService
+    ITransformerPointService transformerPointService,
     TransformerCreateModelValidator transformerCreateValidator,
     TransformerUpdateModelValidator transformerUpdateValidator) : ITransformerService
 {
@@ -25,13 +25,7 @@ public class TransformerService(
         if (!validator.IsValid)
             throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
 
-        var existTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Description.ToLower() == createModel.Description.ToLower());
-
-    ITransformerPointService transFormerPointService) : ITransformerService
-{
-    public async ValueTask<TransformerViewModel> CreateAsync(TransformerCreateModel createModel)
-    {
-        var existTransformerPoint = await transFormerPointService.GetByIdAsync(createModel.TransformerPointId);
+        var existTransformerPoint = await transformerPointService.GetByIdAsync(createModel.TransformerPointId);
 
         var existTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Description.ToLower() == createModel.Description.ToLower() && !t.IsDeleted);
 
@@ -54,7 +48,7 @@ public class TransformerService(
         if (!validator.IsValid)
             throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
 
-        var existTransformerPoint = await transFormerPointService.GetByIdAsync(updateModel.TransformerPointId);
+        var existTransformerPoint = await transformerPointService.GetByIdAsync(updateModel.TransformerPointId);
 
         var existTransformer = await unitOfWork.Transformers.SelectAsync(t => t.Id == id && !t.IsDeleted)
             ?? throw new NotFoundException($"Transformer is not found with this ID = {id}");

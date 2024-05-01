@@ -5,7 +5,7 @@ namespace ElectraNet.WebApi.Validator.Employees;
 
 public class EmployeeUpdateModelValidator : AbstractValidator<EmployeeUpdateModel>
 {
-    EmployeeUpdateModelValidator()
+    public EmployeeUpdateModelValidator()
     {
         RuleFor(employee => employee.UserId)
             .NotNull()

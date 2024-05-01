@@ -13,7 +13,18 @@ using ElectraNet.Service.Services.Transformers;
 using ElectraNet.Service.Services.UserPermissions;
 using ElectraNet.Service.Services.UserRoles;
 using ElectraNet.Service.Services.Users;
+using ElectraNet.Service.Validators.Cables;
+using ElectraNet.Service.Validators.Laboratories;
+using ElectraNet.Service.Validators.Permissions;
+using ElectraNet.Service.Validators.Positions;
 using ElectraNet.WebApi.Middlewares;
+using ElectraNet.WebApi.Validator.Employees;
+using ElectraNet.WebApi.Validator.Organizations;
+using ElectraNet.WebApi.Validator.ServiceRecords;
+using ElectraNet.WebApi.Validator.TransformerPoints;
+using ElectraNet.WebApi.Validator.Transformers;
+using ElectraNet.WebApi.Validator.UserPermissions;
+using ElectraNet.WebApi.Validator.UserRoles;
 using ElectraNet.WebApi.Validator.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -26,19 +37,19 @@ public static class ServicesCollection
     public static void AddServices(this IServiceCollection services)
     {
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<IAssetService, AssetService>();
-        services.AddScoped<ICableService, CableService>();
-        services.AddScoped<IEmployeeService, EmployeeService>();
-        services.AddScoped<ILaboratoryService, LaboratoryService>();
-        services.AddScoped<IOrganizationService, OrganizationService>();
-        services.AddScoped<IPermissionService, PermissionService>();
-        services.AddScoped<IPositionService, PositionService>();
-        services.AddScoped<IServiceRecordService, ServiceRecordService>();
-        services.AddScoped<ITransformerPointService, TransformerPointService>();
-        services.AddScoped<ITransformerService, TransformerService>();
-        services.AddScoped<IUserPermissionService, UserPermissionService>();
         services.AddScoped<IUserRoleService, UserRoleService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IPermissionService, PermissionService>();
+        services.AddScoped<IUserPermissionService, UserPermissionService>();
+        services.AddScoped<IAssetService, AssetService>();
+        services.AddScoped<ICableService, CableService>();
+        services.AddScoped<IOrganizationService, OrganizationService>();
+        services.AddScoped<IEmployeeService, EmployeeService>();
+        services.AddScoped<ITransformerService, TransformerService>();
+        services.AddScoped<ITransformerPointService, TransformerPointService>();
+        services.AddScoped<ILaboratoryService, LaboratoryService>();
+        services.AddScoped<IPositionService, PositionService>();
+        services.AddScoped<IServiceRecordService, ServiceRecordService>();
     }
 
     public static void AddExceptionHandlers(this IServiceCollection services)
@@ -52,8 +63,41 @@ public static class ServicesCollection
 
     public static void AddValidators(this IServiceCollection services)
     {
+        services.AddTransient<UserRoleCreateModelValidator>();
+        services.AddTransient<UserRoleUpdateModelValidator>();
+
         services.AddTransient<UserCreateModelValidator>();
         services.AddTransient<UserUpdateModelValidator>();
+
+        services.AddTransient<PermissionCreateModelValidator>();
+        services.AddTransient<PermissionUpdateModelValidator>();
+
+        services.AddTransient<UserPermissionCreateModelValidator>();
+        services.AddTransient<UserPermissionUpdateModelValidator>();
+
+        services.AddTransient<CableCreateModelValidator>();
+        services.AddTransient<CableUpdateModelValidator>();
+
+        services.AddTransient<OrganizationCreateModelValidator>();
+        services.AddTransient<OrganizationUpdateModelValidator>();
+
+        services.AddTransient<EmployeeCreateModelValidator>();
+        services.AddTransient<EmployeeUpdateModelValidator>();
+
+        services.AddTransient<TransformerCreateModelValidator>();
+        services.AddTransient<TransformerUpdateModelValidator>();
+
+        services.AddTransient<TransformerPointCreateModelValidator>();
+        services.AddTransient<TransformerPointUpdateModelValidator>();
+
+        services.AddTransient<LaboratoryCreateModelValidator>();
+        services.AddTransient<LaboratoryUpdateModelValidator>();
+
+        services.AddTransient<PositionCreateModelValidator>();
+        services.AddTransient<PositionUpdateModelValidator>();
+
+        services.AddTransient<ServiceRecordCreateModelValidator>();
+        services.AddTransient<ServiceRecordUpdateModelValidator>();
     }
 
     public static void InjectEnvironmentItems(this WebApplication app)

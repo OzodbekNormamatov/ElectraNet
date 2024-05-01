@@ -14,7 +14,7 @@ public class PositionService(
     IMapper mapper, 
     IUnitOfWork unitOfWork,
     PositionCreateModelValidator positionCreateModelValidator,
-    PositionUpdataModelValidator positionUpdateModelValidator) : IPositionService
+    PositionUpdateModelValidator positionUpdateModelValidator) : IPositionService
 {
     public async ValueTask<PositionViewModel> CreateAsync(PositionCreateModel createModel)
     {

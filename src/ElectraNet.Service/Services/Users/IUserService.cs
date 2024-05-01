@@ -42,19 +42,21 @@ public interface IUserService
     /// <param name="search">The optional search term to filter users.
     ValueTask<IEnumerable<UserViewModel>> GetAllAsync(PaginationParams @params, Filter filter, string search = null);
 
-    /// <summary>
-    /// Authenticates a user based on the provided phone number and password, and returns a user object along with an authentication token.
-    /// </summary>
-    /// <param name="phone">The phone number of the user to authenticate.</param>
-    /// <param name="password">The password of the user to authenticate.
-    ValueTask<(UserViewModel user, string token)> LoginAsync(string phone, string password);
+    //ValueTask<(UserViewModel user, string token)> LoginAsync(string phone, string password);
 
     /// <summary>
-    /// Resets the password for a user based on the provided phone number and new password.
+    /// Login with the password for a user based on the provided phone number and new password.
     /// </summary>
     /// <param name="phone">The phone number of the user whose password needs to be reset.</param>
     /// <param name="newPassword">The new password for the user.
     ValueTask<LoginViewModel> LoginAsync(string phone, string password);
+
+    /// <summary>
+    /// Resets the password for a user based on the provided phone number and new password.
+    /// </summary>
+    /// <param name="phone"></param>
+    /// <param name="newPassword"></param>
+    /// <returns></returns>
     ValueTask<bool> ResetPasswordAsync(string phone, string newPassword);
 
     /// <summary>

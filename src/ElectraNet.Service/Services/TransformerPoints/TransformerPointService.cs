@@ -6,7 +6,6 @@ using ElectraNet.Service.DTOs.TransformerPoints;
 using ElectraNet.Service.Exceptions;
 using ElectraNet.Service.Extensions;
 using ElectraNet.Service.Services.Organizations;
-using ElectraNet.Domain.Enitites.TransformerPoints;
 using ElectraNet.WebApi.Validator.TransformerPoints;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +16,7 @@ public class TransformerPointService(
     IUnitOfWork unitOfWork,
     IOrganizationService organizationService,
     TransformerPointCreateModelValidator transformerPointCreateValidator,
-    TransformerPointsUpdateModelValidator transformerPointUpdateValidator
+    TransformerPointUpdateModelValidator transformerPointUpdateValidator
     ) : ITransformerPointService
 {
     public async ValueTask<TransformerPointViewModel> CreateAsync(TransformerPointCreateModel createModel)
@@ -26,7 +25,6 @@ public class TransformerPointService(
         if (!validator.IsValid)
             throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
 
-        var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Title.ToLower() == createModel.Title.ToLower());
         var existOrganization = await organizationService.GetByIdAsync(createModel.OrganizationId);
 
         var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Title.ToLower() == createModel.Title.ToLower() && !t.IsDeleted);
@@ -64,6 +62,7 @@ public class TransformerPointService(
         await unitOfWork.SaveAsync();
 
         var viewModel = mapper.Map<TransformerPointViewModel>(updateTransformerPoint);
+
         viewModel.Organization = existOrganization;
         return viewModel;
     }
@@ -81,7 +80,7 @@ public class TransformerPointService(
 
     public async ValueTask<TransformerPointViewModel> GetByIdAsync(long id)
     {
-        var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Id == id && !t.IsDeleted , ["Organization"])
+        var existTransformerPoint = await unitOfWork.TransformerPoints.SelectAsync(t => t.Id == id && !t.IsDeleted, ["Organization"])
             ?? throw new NotFoundException($"TransformerPoint is not found with this ID = {id}");
 
         return mapper.Map<TransformerPointViewModel>(existTransformerPoint);
