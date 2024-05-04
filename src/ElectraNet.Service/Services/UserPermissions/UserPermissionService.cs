@@ -15,8 +15,8 @@ namespace ElectraNet.Service.Services.UserPermissions;
 public class UserPermissionService(
     IMapper mapper, 
     IUnitOfWork unitOfWork,
-    UserService userService,
-    PermissionService permissionService,
+    IUserService userService,
+    IPermissionService permissionService,
     UserPermissionCreateModelValidator userPermissionCreateValidator,
     UserPermissionUpdateModelValidator userPermissionUpdateValidator) : IUserPermissionService
 {
