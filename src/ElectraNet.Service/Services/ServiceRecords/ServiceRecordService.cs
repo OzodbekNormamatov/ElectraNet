@@ -1,16 +1,15 @@
 ﻿using AutoMapper;
-using ElectraNet.Service.Extensions;
-using Microsoft.EntityFrameworkCore;
-using ElectraNet.Service.Exceptions;
 using ElectraNet.DataAccess.UnitOfWorks;
+using ElectraNet.Domain.Enitites.ServiceRecords;
 using ElectraNet.Service.Configurations;
+using ElectraNet.Service.DTOs.ServiceRecords;
+using ElectraNet.Service.Exceptions;
+using ElectraNet.Service.Extensions;
 using ElectraNet.Service.Services.Cables;
 using ElectraNet.Service.Services.Employees;
-using ElectraNet.Service.DTOs.ServiceRecords;
-using ElectraNet.Domain.Enitites.ServiceRecords;
 using ElectraNet.Service.Services.TransformerPoints;
-using ElectraNet.WebApi.Validator.Employees;
 using ElectraNet.WebApi.Validator.ServiceRecords;
+using Microsoft.EntityFrameworkCore;
 
 namespace ElectraNet.Service.Services.ServiceRecords;
 

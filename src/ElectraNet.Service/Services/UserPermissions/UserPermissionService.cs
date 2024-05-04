@@ -1,22 +1,22 @@
 ﻿using AutoMapper;
-using ElectraNet.Service.Exceptions;
-using ElectraNet.Service.Extensions;
-using Microsoft.EntityFrameworkCore;
+using ElectraNet.DataAccess.UnitOfWorks;
 using ElectraNet.Domain.Enitites.Users;
 using ElectraNet.Service.Configurations;
-using ElectraNet.DataAccess.UnitOfWorks;
 using ElectraNet.Service.DTOs.UserPermissions;
-using ElectraNet.WebApi.Validator.UserPermissions;
-using ElectraNet.Service.Services.Users;
+using ElectraNet.Service.Exceptions;
+using ElectraNet.Service.Extensions;
 using ElectraNet.Service.Services.Permissions;
+using ElectraNet.Service.Services.Users;
+using ElectraNet.WebApi.Validator.UserPermissions;
+using Microsoft.EntityFrameworkCore;
 
 namespace ElectraNet.Service.Services.UserPermissions;
 
 public class UserPermissionService(
-    IMapper mapper, 
+    IMapper mapper,
     IUnitOfWork unitOfWork,
-    UserService userService,
-    PermissionService permissionService,
+    IUserService userService,
+    IPermissionService permissionService,
     UserPermissionCreateModelValidator userPermissionCreateValidator,
     UserPermissionUpdateModelValidator userPermissionUpdateValidator) : IUserPermissionService
 {
@@ -26,7 +26,7 @@ public class UserPermissionService(
         if (!validator.IsValid)
             throw new ArgumentIsNotValidException(validator.Errors.FirstOrDefault().ErrorMessage);
 
-     
+
         var existUser = await userService.GetByIdAsync(createModel.UserId);
         var existPermission = await permissionService.GetByIdAsync(createModel.PermissionId);
 
@@ -88,7 +88,7 @@ public class UserPermissionService(
 
     public async ValueTask<UserPermissionViewModel> GetByIdAsync(long id)
     {
-        var existPermission = await unitOfWork.UserPermissions.SelectAsync( expression:p => p.Id == id && !p.IsDeleted, includes: ["User", "Permission"])
+        var existPermission = await unitOfWork.UserPermissions.SelectAsync(expression: p => p.Id == id && !p.IsDeleted, includes: ["User", "Permission"])
             ?? throw new NotFoundException($"User permission not found with ID = {id}");
 
         return mapper.Map<UserPermissionViewModel>(existPermission);
@@ -97,7 +97,7 @@ public class UserPermissionService(
     public async ValueTask<IEnumerable<UserPermissionViewModel>> GetAllAsync(PaginationParams @params, Filter filter, string search = null)
     {
         var permissions = unitOfWork.UserPermissions.
-            SelectAsQueryable(includes: ["User","Permission"], isTracked:false).OrderBy(filter);
+            SelectAsQueryable(includes: ["User", "Permission"], isTracked: false).OrderBy(filter);
 
         if (!string.IsNullOrEmpty(search))
         {
